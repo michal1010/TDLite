@@ -1,0 +1,4 @@
+langgraph>=0.6
+langchain-core>=0.3
+langchain-openai>=0.3
+langchain-ollama>=0.3
