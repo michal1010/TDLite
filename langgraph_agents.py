@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 import py_compile
 import subprocess
@@ -18,7 +19,7 @@ from langgraph.graph.message import add_messages
 # Configuration
 # ---------------------------------------------------------------------------
 
-PROGRAM_DESCRIPTION_FILE = Path("program_description.txt")
+DEFAULT_PROGRAM_DESCRIPTION_FILE = Path("program_description_easy.txt")
 
 PROGRAM_FILE = Path("generated_program.py")
 TEST_FILE = Path("test_generated_program.py")
@@ -51,9 +52,21 @@ def get_llm() -> ChatOpenAI:
     )
 
 
-def read_program_description() -> str:
-    """Read the program description from the first matching file."""
-    return PROGRAM_DESCRIPTION_FILE.read_text(encoding="utf-8")
+def read_program_description(path: Path) -> str:
+    """Read a program description file."""
+    return path.read_text(encoding="utf-8")
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse the optional program description file name."""
+    parser = argparse.ArgumentParser(description="Run the LangGraph TDD pipeline.")
+    parser.add_argument(
+        "--description-file",
+        nargs="?",
+        default=str(DEFAULT_PROGRAM_DESCRIPTION_FILE),
+        help="program description file to use",
+    )
+    return parser.parse_args()
 
 
 def extract_code(text: str) -> str:
@@ -396,8 +409,10 @@ def build_graph() -> StateGraph:
 
 
 def main() -> AgentState:
+    args = parse_args()
+    description_file = Path(args.description_file)
     app = build_graph()
-    program_description = read_program_description()
+    program_description = read_program_description(description_file)
 
     initial_state: AgentState = {
         "messages": [],
@@ -414,6 +429,7 @@ def main() -> AgentState:
 
     print("\n" + "=" * 60)
     print("  LangGraph TDD Pipeline - Starting")
+    print(f"  Description file: {description_file}")
     print("  A1 tests -> A2 code -> compile -> tests -> debug loop")
     print("=" * 60)
 

@@ -1,0 +1,138 @@
+Program Description: Simple Task Manager
+
+Build a small in-memory task manager.
+
+The program should allow tasks to be created, stored, completed, deleted, and listed.
+
+Each task should have at least:
+
+- an id
+- a title
+- a completion status
+- a priority
+
+The task manager does not need a database, web API, or user interface. It can store everything in memory.
+
+The exact internal representation is up to the implementer. Tasks can be represented using a class, dataclass, dictionary, or any other reasonable structure.
+
+Required behavior:
+
+1. Creating tasks
+
+The task manager should allow a new task to be added with a title and an optional priority.
+
+If no priority is given, the task should receive a reasonable default priority.
+
+Task titles should be meaningful. Empty titles or titles that only contain whitespace should not be accepted.
+
+Only a small fixed set of priorities should be accepted, for example:
+
+- low
+- medium
+- high
+
+Every task should receive a unique id.
+
+New tasks should start as incomplete.
+
+2. Getting tasks
+
+It should be possible to retrieve a task by its id.
+
+If no task with that id exists, the program should report an error in a clear way.
+
+3. Completing tasks
+
+It should be possible to mark a task as completed.
+
+Completing a task that is already completed should not break the program.
+
+Trying to complete a task that does not exist should result in an error.
+
+4. Deleting tasks
+
+It should be possible to delete a task.
+
+After deletion, the task should no longer appear in the task manager.
+
+Trying to retrieve a deleted task should result in an error.
+
+Trying to delete a task that does not exist should also result in an error.
+
+5. Listing tasks
+
+It should be possible to list the currently stored tasks.
+
+If there are no tasks, the program should return an empty list.
+
+Deleted tasks should not appear in the result.
+
+The task manager should also support basic filtering when listing tasks.
+
+For example, it should be possible to list:
+
+- only completed tasks
+- only incomplete tasks
+- only tasks with a specific priority
+- tasks that match both a completion status and a priority
+
+Invalid filter values should not be silently ignored.
+
+Expected test areas:
+
+The generated tests should check that:
+
+- a new task manager starts empty
+- tasks can be added
+- task ids are unique
+- new tasks are incomplete by default
+- a default priority is used when none is provided
+- invalid titles are rejected
+- invalid priorities are rejected
+- existing tasks can be retrieved
+- missing tasks cause an error
+- tasks can be marked as completed
+- completing an already completed task is safe
+- missing tasks cannot be completed
+- tasks can be deleted
+- deleted tasks cannot be retrieved
+- missing tasks cannot be deleted
+- all existing tasks can be listed
+- deleted tasks are not listed
+- tasks can be filtered by completion status
+- tasks can be filtered by priority
+- filters can be combined
+- invalid filter values cause an error
+
+Example usage:
+
+manager = TaskManager()
+
+task1 = manager.add_task("Write tests", priority="high")
+task2 = manager.add_task("Implement code")
+task3 = manager.add_task("Clean up", priority="low")
+
+manager.complete_task(task1.id)
+
+all_tasks = manager.list_tasks()
+completed_tasks = manager.list_tasks(completed=True)
+high_priority_tasks = manager.list_tasks(priority="high")
+incomplete_high_priority_tasks = manager.list_tasks(completed=False, priority="high")
+
+The exact method signatures can be chosen by the implementer, but the public API should be simple and consistent.
+
+Why this program is useful:
+
+This task is simple, but it still contains enough behavior to test a test-driven code generation architecture.
+
+It includes:
+
+- state management
+- multiple objects
+- validation
+- error handling
+- deletion
+- filtering
+- combined conditions
+
+The architecture should first infer useful tests from the description and then implement code that satisfies those tests.
