@@ -14,7 +14,7 @@ from langchain_openai import ChatOpenAI  # works with any OpenAI-compatible endp
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 
-
+from pydantic import BaseModel
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
@@ -41,6 +41,9 @@ class AgentState(TypedDict):
     debug_report: str
     next_agent: str
     iteration: int
+
+class Response(BaseModel):
+    content: str
 
 
 def get_llm() -> ChatOpenAI:
@@ -101,24 +104,25 @@ def agent_a1_test_generation(state: AgentState) -> AgentState:
     program_description = state["program_description"]
 
     prompt = f"""
-You are Agent A1, the test-writing agent in a TDD pipeline.
+        You are Agent A1, the test-writing agent in a TDD pipeline.
 
-Write unit tests for the program described below.
+        Write unit tests for the program described below.
 
-Rules:
-- Use Python's built-in unittest module.
-- The implementation will live in a file called generated_program.py.
-- Import the program under test from generated_program.py.
-- Write only the test code.
-- Do not include markdown fences or explanations.
-- Cover the required behavior from the description, not extra features.
+        Rules:
+        - Use Python's built-in unittest module.
+        - The implementation will live in a file called generated_program.py.
+        - Import the program under test from generated_program.py.
+        - Write only the test code.
+        - Do not include markdown fences or explanations.
+        - Cover the required behavior from the description, not extra features.
 
-Program description:
-{program_description}
-""".strip()
+        Program description:
+        {program_description}
+        """.strip()
 
+    llm = llm.with_structured_output(Response)
     response = llm.invoke([HumanMessage(content=prompt)])
-    tests = extract_code(str(response.content))
+    tests = response.content
     save_text(TEST_FILE, tests)
 
     print(f"\n{'=' * 60}")
@@ -127,7 +131,7 @@ Program description:
     print("=" * 60)
 
     return {
-        "messages": [response],
+        "messages": [tests],
         "program_description": program_description,
         "tests": tests,
         "code": state["code"],
@@ -175,8 +179,9 @@ def agent_a2_patch_creation(state: AgentState) -> AgentState:
         {debug_context}
         """.strip()
 
+    llm = llm.with_structured_output(Response)
     response = llm.invoke([HumanMessage(content=prompt)])
-    code = extract_code(str(response.content))
+    code = response.content
     save_text(PROGRAM_FILE, code)
 
     print(f"\n{'=' * 60}")
@@ -185,7 +190,7 @@ def agent_a2_patch_creation(state: AgentState) -> AgentState:
     print("=" * 60)
 
     return {
-        "messages": [response],
+        "messages": [code],
         "program_description": state["program_description"],
         "tests": state["tests"],
         "code": code,
@@ -255,8 +260,9 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
 
     print(prompt)
 
+    llm = llm.with_structured_output(Response)
     response = llm.invoke([HumanMessage(content=prompt)])
-    code = extract_code(str(response.content))
+    code = response.content
     save_text(PROGRAM_FILE, code)
 
     print(f"\n{'=' * 60}")
@@ -264,7 +270,7 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
     print("=" * 60)
 
     return {
-        "messages": [response],
+        "messages": [code],
         "program_description": state["program_description"],
         "tests": state["tests"],
         "code": code,
@@ -330,8 +336,9 @@ def agent_a4_debug(state: AgentState) -> AgentState:
         {state["test_output"]}
         """.strip()
 
+    llm = llm.with_structured_output(Response)
     response = llm.invoke([HumanMessage(content=prompt)])
-    debug_report = str(response.content).strip()
+    debug_report = response.content
 
     print(f"\n{'=' * 60}")
     print("[A4 - Debug] sending diagnosis back to A2")
@@ -339,7 +346,7 @@ def agent_a4_debug(state: AgentState) -> AgentState:
     print("=" * 60)
 
     return {
-        "messages": [response],
+        "messages": [debug_report],
         "program_description": state["program_description"],
         "tests": state["tests"],
         "code": state["code"],
