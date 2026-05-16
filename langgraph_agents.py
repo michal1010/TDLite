@@ -72,23 +72,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def extract_code(text: str) -> str:
-    """Return code from a plain response or from the first fenced code block."""
-    stripped = text.strip()
-    if "```" not in stripped:
-        return stripped
-
-    parts = stripped.split("```")
-    if len(parts) < 3:
-        return stripped
-
-    code_block = parts[1].strip()
-    lines = code_block.splitlines()
-    if lines and lines[0].strip().lower() in {"python", "py"}:
-        lines = lines[1:]
-    return "\n".join(lines).strip()
-
-
 def save_text(path: Path, content: str) -> None:
     path.write_text(content.rstrip() + "\n", encoding="utf-8")
 
