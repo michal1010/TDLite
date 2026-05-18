@@ -15,6 +15,10 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 
 from pydantic import BaseModel
+
+from io import StringIO
+from pylint.lint import Run
+from pylint.reporters.text import TextReporter
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
@@ -23,6 +27,7 @@ DEFAULT_PROGRAM_DESCRIPTION_FILE = Path("program_description_easy.txt")
 
 PROGRAM_FILE = Path("generated_program.py")
 TEST_FILE = Path("test_generated_program.py")
+TEST_EXAMPLE = "import unittest \nimport generated_program as gp \n\nclass Tests(unittest.TestCase): \n    def test_always_passes(self): \n        tested_class = gp.TestedClass() \n        self.assertTrue(True)\n\nif __name__ == '__main__': \n    unittest.main()"
 MAX_ITERATIONS = 8
 
 
@@ -36,6 +41,7 @@ class AgentState(TypedDict):
     tests: str
     code: str
     compile_output: str
+    test_linter_error: str
     tests_passed: bool
     test_output: str
     debug_report: str
@@ -86,21 +92,20 @@ def agent_a1_test_generation(state: AgentState) -> AgentState:
     llm = get_llm()
     program_description = state["program_description"]
 
+    save_text(TEST_FILE, TEST_EXAMPLE)
+
     prompt = f"""
         You are Agent A1, the test-writing agent in a TDD pipeline.
 
         Write unit tests for the program described below.
-
-        Rules:
-        - Use Python's built-in unittest module.
-        - The implementation will live in a file called generated_program.py.
-        - Import the program under test from generated_program.py.
-        - Write only the test code.
-        - Do not include markdown fences or explanations.
-        - Cover the required behavior from the description, not extra features.
+        Follow the example format.
+        Do not include explanations.
 
         Program description:
         {program_description}
+
+        Example of expected test file format (replace the example tests with tests relevant to the program description):
+        {TEST_EXAMPLE}
         """.strip()
 
     llm = llm.with_structured_output(Response)
@@ -119,11 +124,119 @@ def agent_a1_test_generation(state: AgentState) -> AgentState:
         "tests": tests,
         "code": state["code"],
         "compile_output": state["compile_output"],
+        "test_linter_error": "",
         "tests_passed": state["tests_passed"],
         "test_output": state["test_output"],
         "debug_report": state["debug_report"],
         "next_agent": "a2",
         "iteration": state["iteration"],
+    }
+
+
+def compile_tests_check(state: AgentState) -> AgentState:
+    """Use a linter to check tests for critical runtime errors before continuing."""
+
+    print(f"Checking whether the generated tests contain critical errors:")
+
+    result = subprocess.run(
+        [sys.executable, "-m", "unittest", TEST_FILE.stem],
+        capture_output=True,
+        text=True,
+    )
+    test_output = (result.stdout + result.stderr).strip()
+
+    next_agent = "a1_fix"
+
+    if "NameError: name 'unittest' is not defined" in test_output:
+        test_linter_error = "The tests do not import the unittest module."
+    elif "Ran 0 tests" in test_output:
+        test_linter_error = "The tests do not correctly use the unittest module, causing zero tests to run."
+    elif "test_always_passes" in test_output:
+        test_linter_error = "The tests are the example template and were not updated based on the program description."    
+    elif test_output.count("AssertionError") < test_output.count("ERROR") and test_output.count("AttributeError") < test_output.count("ERROR") and test_output.count("ModuleNotFoundError") < test_output.count("ERROR"):
+        llm = get_llm()
+        prompt = f"""
+            You are a Python error reader.
+
+            Read the following test output and summarize the error in one short sentence.
+            Ignore assertion errors. Focus on other errors.
+
+            Test output:
+            {test_output}
+            """.strip()
+        llm = llm.with_structured_output(Response)
+        response = llm.invoke([HumanMessage(content=prompt)])
+        test_linter_error = response.content.strip()
+    else:
+        test_linter_error = ""
+        next_agent = "a2"
+
+    print(f"\n{'=' * 60}")
+    print(f"[Test Compile Check] routing -> {next_agent}")
+    print(test_linter_error)
+    print("=" * 60)
+
+    return {
+        "messages": [],
+        "program_description": state["program_description"],
+        "tests": state["tests"],
+        "code": state["code"],
+        "compile_output": state["compile_output"],
+        "test_linter_error": test_linter_error,
+        "tests_passed": state["tests_passed"],
+        "test_output": state["test_output"],
+        "debug_report": state["debug_report"],
+        "next_agent": next_agent,
+        "iteration": state["iteration"],
+    }
+
+
+def agent_a1_test_revision(state: AgentState) -> AgentState:
+    """A1-fix: fix syntax or compilation errors in the generated tests."""
+    print(f"\n A1-fix received test compile error, preparing to fix it:")
+    llm = get_llm()
+
+    prompt = f"""
+        You are Agent A1-FIX, the test-revision agent.
+
+        Fix the issue in the written unit tests for the program described below.
+        Use the program description, current implementation, and error summary.
+        Do not write explanations.
+
+        Program description:
+        {state["program_description"]}
+
+        Current tests:
+        {state["tests"]}
+
+        Error summary:
+        {state["test_linter_error"]}
+
+        Example of expected test file format:
+        {TEST_EXAMPLE}
+        """.strip()
+
+    llm = llm.with_structured_output(Response)
+    response = llm.invoke([HumanMessage(content=prompt)])
+    tests = response.content
+    save_text(TEST_FILE, tests)
+
+    print(f"\n{'=' * 60}")
+    print("[A1-fix - Test Revision] revised tests after compilation failure")
+    print("=" * 60)
+
+    return {
+        "messages": [tests],
+        "program_description": state["program_description"],
+        "tests": tests,
+        "code": state["code"],
+        "compile_output": state["compile_output"],
+        "test_linter_error": "",
+        "tests_passed": False,
+        "test_output": state["test_output"],
+        "debug_report": state["debug_report"],
+        "next_agent": "compile_tests_check",
+        "iteration": state["iteration"] + 1,
     }
 
 
@@ -178,6 +291,7 @@ def agent_a2_patch_creation(state: AgentState) -> AgentState:
         "tests": state["tests"],
         "code": code,
         "compile_output": "",
+        "test_linter_error": state["test_linter_error"],
         "tests_passed": False,
         "test_output": "",
         "debug_report": "",
@@ -207,6 +321,7 @@ def compile_check(state: AgentState) -> AgentState:
         "tests": state["tests"],
         "code": state["code"],
         "compile_output": compile_output,
+        "test_linter_error": state["test_linter_error"],
         "tests_passed": state["tests_passed"],
         "test_output": state["test_output"],
         "debug_report": state["debug_report"],
@@ -258,6 +373,7 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
         "tests": state["tests"],
         "code": code,
         "compile_output": "",
+        "test_linter_error": state["test_linter_error"],
         "tests_passed": False,
         "test_output": "",
         "debug_report": state["debug_report"],
@@ -289,6 +405,7 @@ def run_tests(state: AgentState) -> AgentState:
         "tests": state["tests"],
         "code": state["code"],
         "compile_output": state["compile_output"],
+        "test_linter_error": state["test_linter_error"],
         "tests_passed": tests_passed,
         "test_output": test_output,
         "debug_report": state["debug_report"],
@@ -306,7 +423,7 @@ def agent_a4_debug(state: AgentState) -> AgentState:
         You are Agent A4, the debugging agent in a TDD pipeline.
 
         The tests failed. Investigate the failure and explain what is probably wrong
-        with the implementation. Do not write code. Give a short, concrete diagnosis
+        with the implementation. Do not write code. Assume the test code is fully correct. Give a short, concrete diagnosis
         that the patch-writing agent can act on.
 
         Tests:
@@ -334,6 +451,7 @@ def agent_a4_debug(state: AgentState) -> AgentState:
         "tests": state["tests"],
         "code": state["code"],
         "compile_output": state["compile_output"],
+        "test_linter_error": state["test_linter_error"],
         "tests_passed": False,
         "test_output": state["test_output"],
         "debug_report": debug_report,
@@ -354,6 +472,14 @@ def route_after_compile(state: AgentState) -> Literal["run_tests", "a3", "__end_
     return "a3"
 
 
+def route_after_test_compile(state: AgentState) -> Literal["a2", "a1_fix", "__end__"]:
+    if state["iteration"] >= MAX_ITERATIONS and state["next_agent"] != "a2":
+        return "__end__"
+    if state["next_agent"] == "a2":
+        return "a2"
+    return "a1_fix"
+
+
 def route_after_tests(state: AgentState) -> Literal["a4", "__end__"]:
     if state["tests_passed"]:
         return "__end__"
@@ -366,6 +492,8 @@ def build_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
     graph.add_node("a1", agent_a1_test_generation)
+    graph.add_node("compile_tests_check", compile_tests_check)
+    graph.add_node("a1_fix", agent_a1_test_revision)
     graph.add_node("a2", agent_a2_patch_creation)
     graph.add_node("compile_check", compile_check)
     graph.add_node("a3", agent_a3_patch_revision)
@@ -373,7 +501,18 @@ def build_graph() -> StateGraph:
     graph.add_node("a4", agent_a4_debug)
 
     graph.set_entry_point("a1")
-    graph.add_edge("a1", "a2")
+    # graph.add_edge("a1", "a2")
+    graph.add_edge("a1", "compile_tests_check")
+    graph.add_conditional_edges(
+        "compile_tests_check",
+        route_after_test_compile,
+        {
+            "a2": "a2",
+            "a1_fix": "a1",
+            "__end__": END,
+        },
+    )
+    graph.add_edge("a1_fix", "compile_tests_check")
     graph.add_edge("a2", "compile_check")
     graph.add_conditional_edges(
         "compile_check",
@@ -410,6 +549,7 @@ def main() -> AgentState:
         "tests": "",
         "code": "",
         "compile_output": "",
+        "test_linter_error": "",
         "tests_passed": False,
         "test_output": "",
         "debug_report": "",
@@ -420,7 +560,7 @@ def main() -> AgentState:
     print("\n" + "=" * 60)
     print("  LangGraph TDD Pipeline - Starting")
     print(f"  Description file: {description_file}")
-    print("  A1 tests -> A2 code -> compile -> tests -> debug loop")
+    print("  A1 tests -> test compile -> A2 code -> compile -> tests -> debug loop")
     print("=" * 60)
 
     final_state = app.invoke(initial_state)
