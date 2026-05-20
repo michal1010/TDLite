@@ -15,6 +15,7 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 
 from pydantic import BaseModel
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
@@ -23,6 +24,22 @@ DEFAULT_PROGRAM_DESCRIPTION_FILE = Path("program_description_easy.txt")
 
 PROGRAM_FILE = Path("generated_program.py")
 TEST_FILE = Path("test_generated_program.py")
+TEST_EXAMPLE = """import unittest
+from generated_program import ClassToTest
+
+class Tests(unittest.TestCase):
+    # Rename tests, classes and methods based on the program description
+    def test_example_1(self):
+        class_to_test = ClassToTest()
+        self.assertEqual(class_to_test.some_method(), "expected result")
+
+    def test_example_2(self):
+        class_to_test = ClassToTest()
+        self.assertEqual(class_to_test.some_other_method(), 42)
+        
+if __name__ == '__main__':
+    unittest.main()
+"""
 MAX_ITERATIONS = 8
 
 
@@ -47,8 +64,11 @@ class Response(BaseModel):
 
 
 def get_llm() -> ChatOpenAI:
+    '''Changed model to qwen2.5-coder:3b, takes a bit longer usually, but no more 5 min+ thinking.
+    Change model back to model="qwen3:0.6b" if your laptop cannot handle.
+    '''
     return ChatOpenAI(
-        model="qwen3:0.6b",
+        model="qwen2.5-coder:3b",
         base_url="http://localhost:11434/v1",
         api_key="ollama",
         temperature=0.2,
@@ -86,21 +106,20 @@ def agent_a1_test_generation(state: AgentState) -> AgentState:
     llm = get_llm()
     program_description = state["program_description"]
 
+    save_text(TEST_FILE, TEST_EXAMPLE)
+
     prompt = f"""
         You are Agent A1, the test-writing agent in a TDD pipeline.
-
-        Write unit tests for the program described below.
-
-        Rules:
-        - Use Python's built-in unittest module.
-        - The implementation will live in a file called generated_program.py.
-        - Import the program under test from generated_program.py.
-        - Write only the test code.
-        - Do not include markdown fences or explanations.
-        - Cover the required behavior from the description, not extra features.
+        Write unit tests in Python based on the program description and example template.
+        Do NOT just return the example template.
+        Ensure test assertions are correct.
+        The import modules (unittest and generated_program) are already correct.
 
         Program description:
         {program_description}
+
+        Example template:
+        {TEST_EXAMPLE}
         """.strip()
 
     llm = llm.with_structured_output(Response)
@@ -127,6 +146,73 @@ def agent_a1_test_generation(state: AgentState) -> AgentState:
     }
 
 
+def test_syntax_check(state: AgentState) -> AgentState:
+    """Check for syntax errors in the generated tests."""
+
+    print(f"Checking whether the generated tests contain critical errors:")
+
+    result = subprocess.run(
+        [sys.executable, "-m", "unittest", TEST_FILE.stem],
+        capture_output=True,
+        text=True,
+    )
+    test_output = (result.stdout + result.stderr).strip()
+
+    next_agent = "a1"
+
+    # Some easy errors, no LLM call needed
+    easy_errors = ("NameError: name 'unittest' is not defined" in test_output or # Not importing unittest
+                    "Ran 0 tests" in test_output or # Empty test suite, or tests not in unittest class
+                    TEST_EXAMPLE in test_output or # No changes from template test suite
+                    (test_output.count("AssertionError") >= test_output.count("ERROR") and # AssertionErrors are allowed
+                        test_output.count("ModuleNotFoundError") >= test_output.count("ERROR")) or # generated_program does not exist yet, this error is allowed
+                    "if __name__ == '__main__':" not in state["tests"]) # No way to run the tests included
+
+    if not easy_errors:
+        print("LLM manually checking tests for syntax...")
+        llm = get_llm()
+        # Use LLM to deduce whether there are actually tests and whether they contain syntax errors.
+        prompt = f"""
+            You are a Python test checker.
+            Check the following test code and determine if it contains tests.
+            Also check if there are critical errors.
+            Reply 'False' if any of the following is true:
+            - There are no test cases defined.
+            - THere are critical syntax errors.
+            Otherwise, reply 'True'.
+            Test code:
+            {state["tests"]}
+            """.strip()
+        
+        llm = llm.with_structured_output(Response)
+        response = llm.invoke([HumanMessage(content=prompt)])
+        print(f"\nLLM response for test check: {response.content}")
+        if response.content.strip().lower() == "true":
+            next_agent = "a2"
+            iterations = state["iteration"]
+        else:
+            iterations = state["iteration"] + 1
+    else:
+        iterations = state["iteration"] + 1
+        print("Easy error detected, retrying one-shot with A1...")
+
+    print(f"\n{'=' * 60}")
+    print(f"[Test Compile Check] routing -> {next_agent}")
+    print("=" * 60)
+
+    return {
+        "messages": [],
+        "program_description": state["program_description"],
+        "tests": state["tests"],
+        "code": state["code"],
+        "compile_output": state["compile_output"],
+        "tests_passed": state["tests_passed"],
+        "test_output": state["test_output"],
+        "debug_report": state["debug_report"],
+        "next_agent": next_agent,
+        "iteration": iterations,
+    }
+
 def agent_a2_patch_creation(state: AgentState) -> AgentState:
     """A2: write or revise the program so that it satisfies the generated tests."""
     print(f"\n A2 received state with test description, preparing to write implementation:")
@@ -150,6 +236,7 @@ def agent_a2_patch_creation(state: AgentState) -> AgentState:
         Rules:
         - Return only Python code.
         - Do not include markdown fences or explanations.
+        - Do not include ```python ```fences, just return the code.
         - Make the code satisfy the tests.
         - Keep the implementation simple.
 
@@ -194,6 +281,8 @@ def compile_check(state: AgentState) -> AgentState:
         next_agent = "run_tests"
     except py_compile.PyCompileError as exc:
         compile_output = str(exc)
+        if "```python" in compile_output:
+            compile_output = "Code failed, because you included ```python fences. DO NOT include markdown fences, return only code."
         next_agent = "a3"
 
     print(f"\n{'=' * 60}")
@@ -229,6 +318,7 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
         Rules:
         - Return only Python code.
         - Do not include markdown fences or explanations.
+        - Do not include ```python ```fences, just return the code.
         - Keep the intended behavior from the program description.
 
         Program description:
@@ -240,8 +330,6 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
         Compilation error:
         {state["compile_output"]}
         """.strip()
-
-    print(prompt)
 
     llm = llm.with_structured_output(Response)
     response = llm.invoke([HumanMessage(content=prompt)])
@@ -306,7 +394,7 @@ def agent_a4_debug(state: AgentState) -> AgentState:
         You are Agent A4, the debugging agent in a TDD pipeline.
 
         The tests failed. Investigate the failure and explain what is probably wrong
-        with the implementation. Do not write code. Give a short, concrete diagnosis
+        with the implementation. Do not write code. Assume the test code is fully correct. Give a short, concrete diagnosis
         that the patch-writing agent can act on.
 
         Tests:
@@ -354,6 +442,14 @@ def route_after_compile(state: AgentState) -> Literal["run_tests", "a3", "__end_
     return "a3"
 
 
+def route_after_test_compile(state: AgentState) -> Literal["a2", "a1", "__end__"]:
+    if state["iteration"] >= MAX_ITERATIONS and state["next_agent"] != "a2":
+        return "__end__"
+    if state["next_agent"] == "a2":
+        return "a2"
+    return "a1"
+
+
 def route_after_tests(state: AgentState) -> Literal["a4", "__end__"]:
     if state["tests_passed"]:
         return "__end__"
@@ -366,6 +462,7 @@ def build_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
     graph.add_node("a1", agent_a1_test_generation)
+    graph.add_node("test_syntax_check", test_syntax_check)
     graph.add_node("a2", agent_a2_patch_creation)
     graph.add_node("compile_check", compile_check)
     graph.add_node("a3", agent_a3_patch_revision)
@@ -373,7 +470,17 @@ def build_graph() -> StateGraph:
     graph.add_node("a4", agent_a4_debug)
 
     graph.set_entry_point("a1")
-    graph.add_edge("a1", "a2")
+    # graph.add_edge("a1", "a2")
+    graph.add_edge("a1", "test_syntax_check")
+    graph.add_conditional_edges(
+        "test_syntax_check",
+        route_after_test_compile,
+        {
+            "a2": "a2",
+            "a1": "a1",
+            "__end__": END,
+        },
+    )
     graph.add_edge("a2", "compile_check")
     graph.add_conditional_edges(
         "compile_check",
@@ -420,7 +527,7 @@ def main() -> AgentState:
     print("\n" + "=" * 60)
     print("  LangGraph TDD Pipeline - Starting")
     print(f"  Description file: {description_file}")
-    print("  A1 tests -> A2 code -> compile -> tests -> debug loop")
+    print("  A1 tests -> test compile -> A2 code -> compile -> tests -> debug loop")
     print("=" * 60)
 
     final_state = app.invoke(initial_state)
