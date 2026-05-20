@@ -38,7 +38,13 @@ pip install -r requirements.txt
 
 ## Ollama setup
 
-In this experiment qwen3:0.6b is used. Start Ollama if it is not already running:
+In this experiment qwen2.5-coder:3b is used.
+
+You can also use qwen3:0.6b, be sure to change the model in get_llm(), in langgraph_agents.py.
+
+Use your model of choice in the following commands.
+
+Start Ollama if it is not already running:
 
 ```bash
 ollama run qwen3:0.6b
@@ -68,6 +74,34 @@ curl http://localhost:11434/api/tags
 
 ## How to run
 
+You can run the full pipeline, which:
+
+1. Deletes `test_generated_program.py` and `generated_program.py`.
+2. Runs `langgraph_agents.py` with some description.
+
+Make sure you have a virtual environment named `.venv` setup:
+
+```bash
+python -m venv .venv
+
+call .venv/Scripts/activate # Or however you activate a venv on your machine
+
+pip install -r requirements.txt
+```
+
+Run the pipeline with the default easy description:
+
+```bash
+bash run.sh
+```
+
+or with a specific problem description file, for example:
+
+```bash
+bash run.sh program_description_hard.txt
+```
+
+You can also run the python file manually.
 Run the pipeline with the default easy description:
 
 ```bash
@@ -105,7 +139,9 @@ problem description
         ↓
 A1 writes tests
         ↓
-A2 writes code
+test syntax check
+        ↓       ↘
+A2 writes code   A1
         ↓
 compile check
    ↙         ↘
