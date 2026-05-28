@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage
 from utils.config import TEST_EXAMPLE, TEST_FILE
 from utils.llm import get_llm
 from utils.schemas import Response
-from utils.state import AgentState
+from utils.state import AgentState, update_token_state
 
 
 def test_syntax_check(state: AgentState) -> AgentState:
@@ -55,4 +55,6 @@ def test_syntax_check(state: AgentState) -> AgentState:
         "next_agent": next_agent,
         "iteration": iterations,
         "specifications": state["specifications"],
+        "input_tokens": state["input_tokens"],
+        "output_tokens": state["output_tokens"],
     }

@@ -141,6 +141,8 @@ def main() -> AgentState:
         "next_agent": "a1",
         "iteration": 0,
         "specifications": "",
+        "input_tokens": {},
+        "output_tokens": {},
     }
 
     print("\n" + "=" * 60)
@@ -163,4 +165,6 @@ def main() -> AgentState:
 
 
 if __name__ == "__main__":
-    main()
+    state = main()
+    print(f"Input tokens: {state['input_tokens']}")
+    print(f"Output tokens: {state['output_tokens']}")

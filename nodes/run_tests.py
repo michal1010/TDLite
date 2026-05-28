@@ -44,4 +44,6 @@ def run_tests(state: AgentState) -> AgentState:
         "next_agent": next_agent,
         "iteration": state["iteration"],
         "specifications": state["specifications"],
+        "input_tokens": state["input_tokens"],
+        "output_tokens": state["output_tokens"],
     }

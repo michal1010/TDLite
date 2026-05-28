@@ -4,7 +4,7 @@ from utils.config import PROGRAM_FILE
 from utils.io_utils import save_text
 from utils.llm import get_llm
 from utils.schemas import Response
-from utils.state import AgentState
+from utils.state import AgentState, update_token_state
 
 
 def agent_a3_patch_revision(state: AgentState) -> AgentState:
@@ -37,6 +37,7 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
     llm = llm.with_structured_output(Response)
     response = llm.invoke([HumanMessage(content=prompt)])
     code = response.content
+    update_token_state(state, response, "a3")
     save_text(PROGRAM_FILE, code)
 
     print(f"\n{'=' * 60}")
@@ -55,4 +56,6 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
         "ever_passed_tests": state["ever_passed_tests"],
         "next_agent": "compile_check",
         "iteration": state["iteration"] + 1,
+        "input_tokens": state["input_tokens"],
+        "output_tokens": state["output_tokens"],
     }
