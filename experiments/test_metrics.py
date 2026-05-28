@@ -188,6 +188,20 @@ def generate_coverage_report(
 
     return report
 
+# Can be adjusted later depending on what we want to analyze.
+def concise_coverage_report(report: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract concise metrics for data analysis."""
+    branch_cov = report["branch_coverage"]["percent"]
+    line_cov = report["line_coverage"]["percent"]
+    num_tests = report["tests_run"]
+    pass_rate = (report["tests_passed"] / report["tests_run"]) * 100 if report["tests_run"] > 0 else 0.0
+    return {
+        "line_coverage_percent": line_cov,
+        "branch_coverage_percent": branch_cov,
+        "tests_run": num_tests,
+        "test_pass_rate": pass_rate,
+    }
+
 # Quick test
 if __name__ == "__main__":
     generate_coverage_report()
