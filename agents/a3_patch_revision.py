@@ -34,10 +34,10 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
         {state["compile_output"]}
         """.strip()
 
-    llm = llm.with_structured_output(Response)
+    llm = llm.with_structured_output(schema=Response, include_raw=True)
     response = llm.invoke([HumanMessage(content=prompt)])
-    code = response.content
-    update_token_state(state, response, "a3")
+    code = response["parsed"].content
+    update_token_state(state, response["raw"], "a3")
     save_text(PROGRAM_FILE, code)
 
     print(f"\n{'=' * 60}")

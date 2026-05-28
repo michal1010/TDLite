@@ -12,6 +12,7 @@ from agents.a2_patch_creation import agent_a2_patch_creation
 from agents.a3_patch_revision import agent_a3_patch_revision
 from agents.a4_debug import agent_a4_debug
 from utils.config import MAX_ITERATIONS
+from experiments.test_metrics import generate_coverage_report
 from utils.io_utils import parse_args, read_program_description
 from nodes.compile_check import compile_check
 from nodes.test_syntax_check import test_syntax_check
@@ -168,3 +169,4 @@ if __name__ == "__main__":
     state = main()
     print(f"Input tokens: {state['input_tokens']}")
     print(f"Output tokens: {state['output_tokens']}")
+    generate_coverage_report(verbose=True)
