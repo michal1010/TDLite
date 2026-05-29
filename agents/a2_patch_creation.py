@@ -13,10 +13,10 @@ def agent_a2_patch_creation(state: AgentState) -> AgentState:
     llm = get_llm()
 
     debug_context = ""
-    if state["debug_report"]:
+    if state["debug_reports"]:
         debug_context = f"""
             The last test run failed. A debug agent reported:
-            {state["debug_report"]}
+            {state["debug_reports"][-1]}
 
             Current code:
             {state["code"]}
@@ -60,8 +60,9 @@ def agent_a2_patch_creation(state: AgentState) -> AgentState:
         "code": code,
         "compile_output": "",
         "tests_passed": False,
-        "test_output": "",
-        "debug_report": "",
+        "test_outputs": state["test_outputs"],
+        "debug_reports": state["debug_reports"],
+        "ever_passed_tests": state["ever_passed_tests"],
         "next_agent": "compile_check",
         "iteration": state["iteration"] + 1,
     }

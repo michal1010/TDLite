@@ -1,20 +1,29 @@
 import subprocess
 import sys
-
+import re
 from config import TEST_FILE
 from state import AgentState
 
+def parse_passed_test_names(output: str) -> list[str]:
+    passed = []
+    for line in output.splitlines():
+        match = re.match(r'^(\w+)\s+\(.*?\)\s+\.\.\.\s+ok\s*$', line.strip())
+        if match:
+            passed.append(match.group(1))
+    return passed
 
 def run_tests(state: AgentState) -> AgentState:
     """Run the generated unit tests and record the result."""
     print(f"\n Running tests with the current implementation:")
     result = subprocess.run(
-        [sys.executable, "-m", "unittest", TEST_FILE.stem],
+        [sys.executable, "-m", "unittest", "-v", TEST_FILE.stem],
         capture_output=True,
         text=True,
     )
     test_output = (result.stdout + result.stderr).strip()
     tests_passed = result.returncode == 0
+    passed_now = parse_passed_test_names(test_output)
+    ever_passed = list(set(state["ever_passed_tests"]) | set(passed_now))
     next_agent = "end" if tests_passed else "a4"
 
     print(f"\n{'=' * 60}")
@@ -29,8 +38,9 @@ def run_tests(state: AgentState) -> AgentState:
         "code": state["code"],
         "compile_output": state["compile_output"],
         "tests_passed": tests_passed,
-        "test_output": test_output,
-        "debug_report": state["debug_report"],
+        "test_outputs": state["test_outputs"] + [test_output],
+        "debug_reports": state["debug_reports"],
+        "ever_passed_tests": ever_passed,
         "next_agent": next_agent,
         "iteration": state["iteration"],
     }

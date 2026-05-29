@@ -14,7 +14,9 @@ class AgentState(TypedDict):
     code: str
     compile_output: str
     tests_passed: bool
-    test_output: str
-    debug_report: str
+    ever_passed_tests: list[str]
+    test_outputs: list[str]
+    debug_reports: list[str]
     next_agent: str
     iteration: int
+
