@@ -50,8 +50,9 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
         "code": code,
         "compile_output": "",
         "tests_passed": False,
-        "test_output": "",
-        "debug_report": state["debug_report"],
+        "test_outputs": state["test_outputs"],
+        "debug_reports": state["debug_reports"],
+        "ever_passed_tests": state["ever_passed_tests"],
         "next_agent": "compile_check",
         "iteration": state["iteration"] + 1,
     }

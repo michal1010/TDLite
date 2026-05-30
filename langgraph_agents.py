@@ -101,8 +101,9 @@ def main() -> AgentState:
         "code": "",
         "compile_output": "",
         "tests_passed": False,
-        "test_output": "",
-        "debug_report": "",
+        "test_outputs": [],
+        "debug_reports": [],
+        "ever_passed_tests": [],
         "next_agent": "a1",
         "iteration": 0,
     }

@@ -46,8 +46,9 @@ def agent_a1_test_generation(state: AgentState) -> AgentState:
         "code": state["code"],
         "compile_output": state["compile_output"],
         "tests_passed": state["tests_passed"],
-        "test_output": state["test_output"],
-        "debug_report": state["debug_report"],
+        "test_outputs": state["test_outputs"],
+        "debug_reports": state["debug_reports"],
+        "ever_passed_tests": state["ever_passed_tests"],
         "next_agent": "a2",
         "iteration": state["iteration"],
     }
