@@ -1,0 +1,123 @@
+Program Description: Simple Counter
+
+Build a very small program that represents a counter.
+
+The program should expose a class called Counter.
+
+The counter stores one integer value. When a new Counter is created, its value should start at 0.
+
+Required behavior:
+
+1. Create a counter
+
+When a new Counter object is created, its value should be 0.
+
+Example:
+
+counter = Counter()
+
+Expected result:
+
+counter.get_value() returns 0
+
+
+2. Increment the counter
+
+The counter should have a method called increment().
+
+This method increases the counter value by 1.
+
+Example:
+
+counter = Counter()
+counter.increment()
+
+Expected result:
+
+counter.get_value() returns 1
+
+
+3. Decrement the counter
+
+The counter should have a method called decrement().
+
+This method decreases the counter value by 1.
+
+Example:
+
+counter = Counter()
+counter.decrement()
+
+Expected result:
+
+counter.get_value() returns -1
+
+
+4. Reset the counter
+
+The counter should have a method called reset().
+
+This method sets the counter value back to 0.
+
+Example:
+
+counter = Counter()
+counter.increment()
+counter.increment()
+counter.reset()
+
+Expected result:
+
+counter.get_value() returns 0
+
+
+5. Get the current value
+
+The counter should have a method called get_value().
+
+This method returns the current integer value of the counter.
+
+Example:
+
+counter = Counter()
+
+Expected result:
+
+counter.get_value() returns 0
+
+
+Expected Test Cases:
+
+1. A new counter starts at 0.
+2. increment() increases the value by 1.
+3. Calling increment() multiple times works correctly.
+4. decrement() decreases the value by 1.
+5. Calling decrement() multiple times works correctly.
+6. reset() sets the value back to 0.
+7. get_value() returns the current value.
+
+Example Usage:
+
+counter = Counter()
+
+counter.increment()
+counter.increment()
+
+current_value = counter.get_value()
+
+Expected value:
+
+2
+
+counter.decrement()
+
+Expected value:
+
+1
+
+counter.reset()
+
+Expected value:
+
+0
+

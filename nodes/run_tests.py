@@ -1,8 +1,8 @@
 import subprocess
 import sys
 import re
-from config import TEST_FILE
-from state import AgentState
+from utils.config import TEST_FILE
+from utils.state import AgentState
 
 def parse_passed_test_names(output: str) -> list[str]:
     passed = []
@@ -16,7 +16,7 @@ def run_tests(state: AgentState) -> AgentState:
     """Run the generated unit tests and record the result."""
     print(f"\n Running tests with the current implementation:")
     result = subprocess.run(
-        [sys.executable, "-m", "unittest", "-v", TEST_FILE.stem],
+        [sys.executable, "-m", "unittest", "-v", str(TEST_FILE)],
         capture_output=True,
         text=True,
     )
@@ -43,4 +43,5 @@ def run_tests(state: AgentState) -> AgentState:
         "ever_passed_tests": ever_passed,
         "next_agent": next_agent,
         "iteration": state["iteration"],
+        "specifications": state["specifications"],
     }

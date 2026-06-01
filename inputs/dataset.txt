@@ -1,0 +1,11 @@
+Write a function to find the minimum cost path to reach (m, n) from (0, 0) for the given cost matrix cost[][] and a position (m, n) in cost[][].
+
+from typing import List
+\n\n\n
+def has_close_elements(numbers: List[float], threshold: float) -> bool:
+""" 
+Check if in given list of numbers, are any two numbers closer to each other than\n    
+given threshold.
+>>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    
+>>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    """
+,
