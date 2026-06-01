@@ -1,5 +1,6 @@
 import re
 
+
 from langchain_core.messages import HumanMessage
 
 from config import TEMP_DEBUG
@@ -17,8 +18,12 @@ def parse_failing_test_names(output: str) -> list[str]:
     return failing
 
 
+
 def agent_a4_debug(state: AgentState) -> AgentState:
     """A4: explain why tests failed and send that explanation back to A2."""
+    print(f"\n{'='*60}")
+    print(f"[A4 - Debug] analysing failure at iteration {state['iteration']}")
+    print("="*60)
     print(f"\n{'='*60}")
     print(f"[A4 - Debug] analysing failure at iteration {state['iteration']}")
     print("="*60)
@@ -33,7 +38,11 @@ def agent_a4_debug(state: AgentState) -> AgentState:
     if regressions:
         regression_section = f"""\
 The following tests passed before but are now failing — these are REGRESSIONS:
+        regression_section = f"""\
+The following tests passed before but are now failing — these are REGRESSIONS:
 {', '.join(regressions)}
+
+"""
 
 """
 
@@ -45,10 +54,16 @@ The following tests passed before but are now failing — these are REGRESSIONS:
         )
         history_section = f"""\
 Previous diagnoses — provide a NEW diagnosis, do not repeat these:
+        history_section = f"""\
+Previous diagnoses — provide a NEW diagnosis, do not repeat these:
 {previous}
 
 """
+"""
 
+    prompt = f"""\
+You are a debugging agent in a TDD pipeline.
+Analyse why the tests are failing. Do not write code. The test code is correct.
     prompt = f"""\
 You are a debugging agent in a TDD pipeline.
 Analyse why the tests are failing. Do not write code. The test code is correct.
@@ -57,7 +72,12 @@ Be specific:
 - Reference exact line numbers from the code and test output.
 - State the actual value versus the expected value in failed assertions.
 - Identify which method or condition is wrong, not just that something is wrong.
+Be specific:
+- Reference exact line numbers from the code and test output.
+- State the actual value versus the expected value in failed assertions.
+- Identify which method or condition is wrong, not just that something is wrong.
 
+{regression_section}{history_section}\
 {regression_section}{history_section}\
 Program description:
 {state["program_description"]}
@@ -70,7 +90,10 @@ Current code:
 
 Test output:
 {current_output}"""
+Test output:
+{current_output}"""
 
+    llm = get_llm(temperature=TEMP_DEBUG).with_structured_output(DebugReport)
     llm = get_llm(temperature=TEMP_DEBUG).with_structured_output(DebugReport)
     response = llm.invoke([HumanMessage(content=prompt)])
 
@@ -81,12 +104,24 @@ Test output:
     )
 
     print("[A4 - Debug] diagnosis:")
+    print("[A4 - Debug] diagnosis:")
     print(debug_report)
+    print("="*60)
     print("="*60)
 
     return {
         "messages":            [debug_report],
+        "messages":            [debug_report],
         "program_description": state["program_description"],
+        "tests":               state["tests"],
+        "code":                state["code"],
+        "compile_output":      state["compile_output"],
+        "tests_passed":        False,
+        "test_outputs":        state["test_outputs"],
+        "debug_reports":       state["debug_reports"] + [debug_report],
+        "ever_passed_tests":   state["ever_passed_tests"],
+        "next_agent":          "a2",
+        "iteration":           state["iteration"],
         "tests":               state["tests"],
         "code":                state["code"],
         "compile_output":      state["compile_output"],
