@@ -1,68 +1,122 @@
 from langchain_core.messages import HumanMessage
 
-from config import PROGRAM_FILE
+from config import PROGRAM_FILE, TEMP_GENERATE
 from io_utils import save_text
 from llm import get_llm
 from schemas import Response
 from state import AgentState
+from utils import extract_suggested_fix, trim_test_output
 
 
-def agent_a2_patch_creation(state: AgentState) -> AgentState:
-    """A2: write or revise the program so that it satisfies the generated tests."""
-    print(f"\n A2 received state with test description, preparing to write implementation:")
-    llm = get_llm()
 
-    debug_context = ""
-    if state["debug_reports"]:
-        debug_context = f"""
-            The last test run failed. A debug agent reported:
-            {state["debug_reports"][-1]}
+def _build_prompt(state: AgentState) -> str:
+    """
+    Builds the prompt using a three-tier context strategy:
 
-            Current code:
-            {state["code"]}
-            """.strip()
+    Tier 1 — always present, always full:
+        problem description + test suite
 
-    prompt = f"""
-        You are Agent A2, the patch-writing agent in a TDD pipeline.
+    Tier 2 — older debug reports, one line each (compressed):
+        extract only 'Suggested Fix' from debug_reports[:-1]
+        ~20 tokens per entry regardless of how verbose A4 was
 
-        Write the implementation for generated_program.py.
+    Tier 3 — latest attempt, shown in full:
+        debug_reports[-1]  — full Error Analysis / Root Cause / Suggested Fix
+        test_outputs[-1]   — trimmed to tracebacks only
+        code               — current implementation to fix
 
-        Rules:
-        - Return only Python code.
-        - Do not include markdown fences or explanations.
-        - Do not include ```python ```fences, just return the code.
-        - Make the code satisfy the tests.
-        - Keep the implementation simple.
+    Token budget at iteration 8 stays well under 2,500 regardless of
+    how many retries have happened.
+    """
+    description   = state["program_description"]
+    tests         = state["tests"]
+    code          = state["code"]
+    debug_reports = state["debug_reports"]
+    test_outputs  = state["test_outputs"]
 
-        Program description:
-        {state["program_description"]}
+    is_first_attempt = not code
 
-        Tests that must pass:
-        {state["tests"]}
+    if is_first_attempt:
+        task = "Write a Python implementation that passes all the tests below."
+    else:
+        task = "Fix the implementation below so it passes the failing tests."
 
-        {debug_context}
-        """.strip()
+    prompt = f"""\
+You are a code-writing agent in a TDD pipeline.
+{task}
 
-    llm = llm.with_structured_output(Response)
+Rules:
+- Return ONLY Python code. No markdown fences. No explanations.
+- Match the exact class/function names imported in the tests.
+- Handle every edge case visible in the tests.
+- Do not repeat an approach that has already failed.
+
+Problem description:
+{description}
+
+Tests to pass:
+{tests}"""
+
+
+    older_reports = debug_reports[:-1] if len(debug_reports) > 1 else []
+    if older_reports:
+        lines = "\n".join(
+            f"  Attempt {i + 1}: {extract_suggested_fix(r)}"
+            for i, r in enumerate(older_reports)
+        )
+        prompt += f"""
+
+Previously tried approaches — do NOT repeat these:
+{lines}"""
+
+    if debug_reports:
+        prompt += f"""
+
+Latest diagnosis:
+{debug_reports[-1]}"""
+
+    if code:
+        prompt += f"""
+
+Current implementation (fix this):
+{code}"""
+
+    if test_outputs:
+        prompt += f"""
+
+Test failures:
+{trim_test_output(test_outputs[-1])}"""
+
+    return prompt.strip()
+
+
+
+def agent_a2_patch_creation(state: AgentState) -> dict:
+    """
+    A2 — Patch Creation
+
+    Input  (from state): program_description, tests, code,
+                         debug_reports, test_outputs
+    Output (to state):   code, PROGRAM_FILE written to disk,
+                         iteration incremented
+    """
+    print(f"\n{'='*60}")
+    print(f"[A2 - Patch Creation] attempt {state['iteration'] + 1}")
+    print("="*60)
+
+    llm = get_llm(temperature=TEMP_GENERATE).with_structured_output(Response)
+    prompt = _build_prompt(state)
     response = llm.invoke([HumanMessage(content=prompt)])
     code = response.content
+
     save_text(PROGRAM_FILE, code)
 
-    print(f"\n{'=' * 60}")
-    print(f"[A2 - Patch Creation] wrote implementation attempt {state['iteration'] + 1}")
-    print(f"Saved to: {PROGRAM_FILE}")
-    print("=" * 60)
+    print(f"[A2] Code written ({len(code.splitlines())} lines) → {PROGRAM_FILE}")
 
     return {
-        "messages": [code],
-        "program_description": state["program_description"],
-        "tests": state["tests"],
-        "code": code,
+        "code":           code,
         "compile_output": "",
-        "tests_passed": False,
-        "test_outputs": state["test_outputs"],
-        "debug_reports": state["debug_reports"],
-        "ever_passed_tests": state["ever_passed_tests"],
-        "next_agent": "compile_check",
-        "iteration": state["iteration"] + 1,
+        "tests_passed":   False,
+        "next_agent":     "compile_check",
+        "iteration":      state["iteration"] + 1,
     }
