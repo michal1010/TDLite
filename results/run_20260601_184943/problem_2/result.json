@@ -1,0 +1,9 @@
+{
+  "problem_id": 2,
+  "task_id": "HumanEval/2",
+  "entry_point": "truncate_number",
+  "iterations": 8,
+  "internal_pass": false,
+  "humaneval_pass": true,
+  "error": ""
+}

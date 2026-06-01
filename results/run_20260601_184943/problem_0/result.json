@@ -1,0 +1,9 @@
+{
+  "problem_id": 0,
+  "task_id": "HumanEval/0",
+  "entry_point": "has_close_elements",
+  "iterations": 1,
+  "internal_pass": true,
+  "humaneval_pass": true,
+  "error": ""
+}

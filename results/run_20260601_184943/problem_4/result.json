@@ -1,0 +1,9 @@
+{
+  "problem_id": 4,
+  "task_id": "HumanEval/4",
+  "entry_point": "mean_absolute_deviation",
+  "iterations": 1,
+  "internal_pass": true,
+  "humaneval_pass": true,
+  "error": ""
+}
