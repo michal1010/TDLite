@@ -1,7 +1,9 @@
 import argparse
 from pathlib import Path
 
-from config import DEFAULT_PROGRAM_DESCRIPTION_FILE
+from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE
+
+SUPPORTED_DATASETS = ("HumanEval", "MBPP")
 
 
 def read_program_description(path: Path) -> str:
@@ -12,12 +14,27 @@ def read_program_description(path: Path) -> str:
 def parse_args() -> argparse.Namespace:
     """Parse the optional program description file name."""
     parser = argparse.ArgumentParser(description="Run the LangGraph TDD pipeline.")
-    parser.add_argument(
-        "--description-file",
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--file",
         nargs="?",
         default=str(DEFAULT_PROGRAM_DESCRIPTION_FILE),
         help="program description file to use",
     )
+    group.add_argument(
+        "--dataset",
+        choices=SUPPORTED_DATASETS,
+        default="MBPP",
+        help="dataset to use (HumanEval or MBPP)",
+    )
+    
+    # Implement the ability to specify if we are in debug mode or not
+    group.add_argument(
+        "--debug",
+        action="store_true",
+        help="whether to run in debug mode with more verbose output and no retries",
+    ) 
+
     return parser.parse_args()
 
 

@@ -19,4 +19,5 @@ class AgentState(TypedDict):
     debug_reports: list[str]
     next_agent: str
     iteration: int
+    specifications: str
 

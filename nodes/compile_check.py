@@ -1,6 +1,6 @@
 import py_compile
-from config import PROGRAM_FILE
-from state import AgentState
+from utils.config import PROGRAM_FILE
+from utils.state import AgentState
 
 
 def compile_check(state: AgentState) -> AgentState:
@@ -32,4 +32,5 @@ def compile_check(state: AgentState) -> AgentState:
         "ever_passed_tests": state["ever_passed_tests"],
         "next_agent": next_agent,
         "iteration": state["iteration"],
+        "specifications": state["specifications"],
     }

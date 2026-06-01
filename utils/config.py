@@ -2,8 +2,8 @@ from pathlib import Path
 
 DEFAULT_PROGRAM_DESCRIPTION_FILE = Path("program_description_easy.txt")
 
-PROGRAM_FILE = Path("generated_program.py")
-TEST_FILE = Path("test_generated_program.py")
+PROGRAM_FILE = Path("outputs/generated_program.py")
+TEST_FILE = Path("outputs/test_generated_program.py")
 TEST_EXAMPLE = """import unittest
 from generated_program import ClassToTest
 
@@ -20,4 +20,4 @@ class Tests(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 """
-MAX_ITERATIONS = 8
+MAX_ITERATIONS = 5
