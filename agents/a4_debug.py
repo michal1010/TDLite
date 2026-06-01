@@ -1,9 +1,12 @@
+import re
+
 from langchain_core.messages import HumanMessage
 
+from config import TEMP_DEBUG
 from utils.llm import get_llm
-import re
 from utils.schemas import DebugReport
 from utils.state import AgentState
+
 
 def parse_failing_test_names(output: str) -> list[str]:
     failing = []
@@ -13,10 +16,12 @@ def parse_failing_test_names(output: str) -> list[str]:
             failing.append(match.group(1))
     return failing
 
+
 def agent_a4_debug(state: AgentState) -> AgentState:
     """A4: explain why tests failed and send that explanation back to A2."""
-    print(f"\n A4 received failed test output, preparing to analyze it:")
-    llm = get_llm()
+    print(f"\n{'='*60}")
+    print(f"[A4 - Debug] analysing failure at iteration {state['iteration']}")
+    print("="*60)
 
     current_output = state["test_outputs"][-1]
 
@@ -26,10 +31,11 @@ def agent_a4_debug(state: AgentState) -> AgentState:
 
     regression_section = ""
     if regressions:
-        regression_section = f"""
-The following tests passed before but are now failing — these are REGRESSIONS the patch must not break:
+        regression_section = f"""\
+The following tests passed before but are now failing — these are REGRESSIONS:
 {', '.join(regressions)}
-""".strip()
+
+"""
 
     history_section = ""
     if state["debug_reports"]:
@@ -37,21 +43,22 @@ The following tests passed before but are now failing — these are REGRESSIONS 
             f"Diagnosis {i + 1}:\n{r}"
             for i, r in enumerate(state["debug_reports"])
         )
-        history_section = f"""
-Previous diagnoses — do not repeat the same diagnosis:
+        history_section = f"""\
+Previous diagnoses — provide a NEW diagnosis, do not repeat these:
 {previous}
-""".strip()
 
-    prompt = f"""
-You are Agent A4, the debugging agent in a TDD pipeline.
+"""
 
-Analyse why the current tests fail. Do not write code. Assume the test code is fully correct.
-Give a short, concrete diagnosis that the patch-writing agent can act on.
+    prompt = f"""\
+You are a debugging agent in a TDD pipeline.
+Analyse why the tests are failing. Do not write code. The test code is correct.
 
-{regression_section}
+Be specific:
+- Reference exact line numbers from the code and test output.
+- State the actual value versus the expected value in failed assertions.
+- Identify which method or condition is wrong, not just that something is wrong.
 
-{history_section}
-
+{regression_section}{history_section}\
 Program description:
 {state["program_description"]}
 
@@ -61,11 +68,10 @@ Tests:
 Current code:
 {state["code"]}
 
-Current test output:
-{current_output}
-""".strip()
+Test output:
+{current_output}"""
 
-    llm = llm.with_structured_output(DebugReport)
+    llm = get_llm(temperature=TEMP_DEBUG).with_structured_output(DebugReport)
     response = llm.invoke([HumanMessage(content=prompt)])
 
     debug_report = (
@@ -74,21 +80,20 @@ Current test output:
         f"Suggested Fix: {response.suggested_fix}"
     )
 
-    print(f"\n{'=' * 60}")
-    print("[A4 - Debug] sending diagnosis back to A2")
+    print("[A4 - Debug] diagnosis:")
     print(debug_report)
-    print("=" * 60)
+    print("="*60)
 
     return {
-        "messages": [debug_report],
+        "messages":            [debug_report],
         "program_description": state["program_description"],
-        "tests": state["tests"],
-        "code": state["code"],
-        "compile_output": state["compile_output"],
-        "tests_passed": False,
-        "test_outputs": state["test_outputs"],
-        "debug_reports": state["debug_reports"] + [debug_report],
-        "ever_passed_tests": state["ever_passed_tests"],
-        "next_agent": "a2",
-        "iteration": state["iteration"],
+        "tests":               state["tests"],
+        "code":                state["code"],
+        "compile_output":      state["compile_output"],
+        "tests_passed":        False,
+        "test_outputs":        state["test_outputs"],
+        "debug_reports":       state["debug_reports"] + [debug_report],
+        "ever_passed_tests":   state["ever_passed_tests"],
+        "next_agent":          "a2",
+        "iteration":           state["iteration"],
     }
