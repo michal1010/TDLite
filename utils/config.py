@@ -6,7 +6,7 @@ TEST_FILE    = Path("outputs/test_generated_program.py")
 
 MODEL_NAME    = "qwen2.5-coder:3b"
 NUM_CTX       = 8192
-TEMP_GENERATE = 0.4   # A1, A2 — slightly exploratory
+TEMP_GENERATE = 0.2   # A1, A2 — slightly exploratory
 TEMP_DEBUG    = 0.2   # A4    — conservative, analytical
 
 MAX_ITERATIONS = 8

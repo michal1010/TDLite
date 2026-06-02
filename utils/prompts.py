@@ -103,10 +103,11 @@ Translate every triplet into a unittest test method.
 
 CRITICAL: Output ONLY raw Python code. No markdown fences, no prose.
 
-STUB RULE: Before the test class, add a minimal stub for the function or class under test.
-  For functions:  def <name>(*args, **kwargs): raise NotImplementedError
-  For classes: a class with each method raising NotImplementedError.
-  This ensures tests fail cleanly with AssertionError rather than crashing with NameError.
+STUB RULE: At the top of the file, import the function or class under test from outputs.generated_program.
+  For functions:  from outputs.generated_program import <name>
+  For classes:    from outputs.generated_program import <ClassName>
+  <name> must come from CONTEXT, not from the example.
+  Do NOT define any stubs or implementations in the test file.
 
 Guidelines:
 1. Extract the function/class name from CONTEXT.
@@ -151,12 +152,10 @@ Test case 2:
   Input: numbers = [1.0, 2.8, 3.0, 4.0, 5.0, 2.0], threshold = 0.3
   Expected output: True
 
-Agent 2 Output:
+
+Agent 2 Output:  <- names below are specific to THIS example; use names from your CONTEXT
 import unittest
-
-def has_close_elements(*args, **kwargs):
-    raise NotImplementedError
-
+from outputs.generated_program import has_close_elements
 
 class TestHasCloseElements(unittest.TestCase):
 
@@ -203,9 +202,7 @@ Test case 3:
 
 Agent 2 Output:
 import unittest
-
-def min_cost_path(*args, **kwargs):
-    raise NotImplementedError
+from outputs.generated_program import min_cost_path
 
 
 class TestMinCostPath(unittest.TestCase):

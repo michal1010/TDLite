@@ -112,7 +112,9 @@ def main() -> AgentState:
     program_description = ""
     description_file = None
 
-    if args.dataset == "MBPP":
+    if args.file:                                               
+        program_description = read_program_description(Path("inputs") / args.file)     
+    elif args.dataset == "MBPP":
         print("Loading program description from MBPP dataset...")
         descriptions = get_mbpp_prompts()
         r = randint(0, len(descriptions) - 1)

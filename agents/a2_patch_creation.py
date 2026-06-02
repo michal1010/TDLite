@@ -50,6 +50,7 @@ Rules:
 - Match the exact class/function names imported in the tests.
 - Handle every edge case visible in the tests.
 - Do not repeat an approach that has already failed.
+- Do NOT add any import from outputs.generated_program. That import is only for the test file.
 
 Problem description:
 {description}
