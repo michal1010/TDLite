@@ -10,13 +10,6 @@ from coverage.exceptions import NoDataError
 from utils.config import PROGRAM_FILE, TEST_FILE
 
 
-def _resolve_path(path_value: str, base_dir: Path) -> Path:
-    path = Path(path_value)
-    if not path.is_absolute():
-        path = base_dir / path
-    return path.resolve()
-
-
 def _run_tests(test_path: Path, base_dir: Path) -> unittest.TestResult:
     test_dir = test_path.parent
     original_cwd = Path.cwd()
@@ -122,8 +115,6 @@ def _analyze_coverage(
 
 
 def generate_coverage_report(
-    test_path: Path = TEST_FILE,
-    patch_path: Path = PROGRAM_FILE,
     verbose: bool = False,
 ) -> Dict[str, Any]:
     """
@@ -135,10 +126,8 @@ def generate_coverage_report(
     """
     base_dir = Path(__file__).resolve().parents[1]
 
-    if not test_path.exists():
-        raise FileNotFoundError(f"Test file not found: {test_path}")
-    if not patch_path.exists():
-        raise FileNotFoundError(f"Patch file not found: {patch_path}")
+    test_path = (base_dir / TEST_FILE).resolve()
+    patch_path = (base_dir / PROGRAM_FILE).resolve()
 
     cov = coverage.Coverage(branch=True, source=[str(patch_path.parent)])
     cov.start()
@@ -150,8 +139,8 @@ def generate_coverage_report(
     coverage_stats, warning = _analyze_coverage(cov, patch_path)
 
     report = {
-        "test_file": str(test_path),
-        "patch_file": str(patch_path),
+        "test_file": str(TEST_FILE),
+        "patch_file": str(PROGRAM_FILE),
         "tests_run": test_result.testsRun,
         "tests_failed": len(test_result.failures),
         "tests_errors": len(test_result.errors),
@@ -188,7 +177,3 @@ def generate_coverage_report(
           print(f"Warning: {warning}")
 
     return report
-
-# Quick test
-if __name__ == "__main__":
-    generate_coverage_report()

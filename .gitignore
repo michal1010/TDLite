@@ -3,3 +3,4 @@ __pycache__/
 generated_program.py
 test_generated_program.py
 .coverage
+experiments/results/

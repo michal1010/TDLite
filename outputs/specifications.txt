@@ -5,7 +5,7 @@ test case 1:
   input: numbers = [1.0, 2.0, 3.0], threshold = 0.5
   expected output: False
 
-# Cases: returns True
+cases: returns True
 
 test case 2:
   description: Returns True when at least two numbers in the list are closer than the threshold.

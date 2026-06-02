@@ -35,6 +35,13 @@ def parse_args() -> argparse.Namespace:
         help="whether to run in debug mode with more verbose output and no retries",
     ) 
 
+    parser.add_argument(
+        "--store_results",
+        nargs="?",
+        default=None,
+        help="defines folder to store experiment results in, implicitly enables results storage",
+    )
+
     return parser.parse_args()
 
 
