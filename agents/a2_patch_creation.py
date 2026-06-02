@@ -46,7 +46,7 @@ You are a code-writing agent in a TDD pipeline.
 {task}
 
 Rules:
-- Return ONLY Python code. No markdown fences. No explanations.
+- Put ONLY raw Python code in the `content` field. No markdown fences. No explanations.
 - Match the exact class/function names imported in the tests.
 - Handle every edge case visible in the tests.
 - Do not repeat an approach that has already failed.
@@ -67,8 +67,9 @@ Tests to pass:
         )
         prompt += f"""
 
-Previously tried approaches — do NOT repeat these:
-{lines}"""
+Earlier diagnoses and suggested fixes — use as context:
+{lines}
+If a previous suggestion is still correct, implement it properly this time; do not merely reproduce an unchanged failed implementation."""
 
     if debug_reports:
         prompt += f"""
