@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import coverage
 from coverage.exceptions import NoDataError
+from utils.config import PROGRAM_FILE, TEST_FILE
 
 
 def _resolve_path(path_value: str, base_dir: Path) -> Path:
@@ -121,20 +122,18 @@ def _analyze_coverage(
 
 
 def generate_coverage_report(
-    test_file: str = "test_generated_program.py",
-    patch_file: str = "generated_program.py",
+    test_path: Path = TEST_FILE,
+    patch_path: Path = PROGRAM_FILE,
     verbose: bool = False,
 ) -> Dict[str, Any]:
     """
     Generate a concise line/branch coverage report for a test run.
     
     Args:
-        test_file: The path to the test file to run from the project root.
-        patch_file: The path to the patch file to analyze coverage for from the project root.
+        test_path: The path to the test file to run from the project root.
+        patch_path: The path to the patch file to analyze coverage for from the project root.
     """
     base_dir = Path(__file__).resolve().parents[1]
-    test_path = _resolve_path(test_file, base_dir)
-    patch_path = _resolve_path(patch_file, base_dir)
 
     if not test_path.exists():
         raise FileNotFoundError(f"Test file not found: {test_path}")

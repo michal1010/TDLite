@@ -86,9 +86,9 @@ Test output:
     update_token_state(state, response["raw"], "a4")
 
     debug_report = (
-        f"Error Analysis: {response["parsed"].error_analysis}\n"
-        f"Root Cause: {response["parsed"].root_cause}\n"
-        f"Suggested Fix: {response["parsed"].suggested_fix}"
+        f"Error Analysis: {response['parsed'].error_analysis}\n"
+        f"Root Cause: {response['parsed'].root_cause}\n"
+        f"Suggested Fix: {response['parsed'].suggested_fix}"
     )
 
     print("[A4 - Debug] diagnosis:")

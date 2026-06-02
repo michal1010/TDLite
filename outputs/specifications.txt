@@ -1,55 +1,13 @@
-# Cases: new counter starts at 0
+# Cases: returns False
 
-Test case 1:
-  Description: A new counter starts at 0.
-  Input: counter = Counter()
-  Expected output: 0
+test case 1:
+  description: Returns False when no two numbers in the list are closer than the threshold.
+  input: numbers = [1.0, 2.0, 3.0], threshold = 0.5
+  expected output: False
 
-# Cases: increment() increases the value by 1
+# Cases: returns True
 
-Test case 2:
-  Description: increment() increases the value by 1.
-  Input: counter = Counter()
-  counter.increment()
-  Expected output: 1
-
-Test case 3:
-  Description: Calling increment() multiple times works correctly.
-  Input: counter = Counter()
-  counter.increment()
-  counter.increment()
-  Expected output: 2
-
-# Cases: decrement() decreases the value by 1
-
-Test case 4:
-  Description: decrement() decreases the value by 1.
-  Input: counter = Counter()
-  counter.decrement()
-  Expected output: -1
-
-Test case 5:
-  Description: Calling decrement() multiple times works correctly.
-  Input: counter = Counter()
-  counter.increment()
-  counter.increment()
-  counter.decrement()
-  counter.decrement()
-  Expected output: 0
-
-# Cases: reset() sets the value back to 0
-
-Test case 6:
-  Description: reset() sets the value back to 0.
-  Input: counter = Counter()
-  counter.increment()
-  counter.increment()
-  counter.reset()
-  Expected output: 0
-
-# Cases: get_value() returns the current value
-
-Test case 7:
-  Description: get_value() returns the current value.
-  Input: counter = Counter()
-  Expected output: 0
+test case 2:
+  description: Returns True when at least two numbers in the list are closer than the threshold.
+  input: numbers = [1.0, 2.8, 3.0, 4.0, 5.0, 2.0], threshold = 0.3
+  expected output: True
