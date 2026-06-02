@@ -1,6 +1,7 @@
 from langchain_ollama import ChatOllama
 
-from config import MODEL_NAME, NUM_CTX
+from .config import MODEL_NAME, NUM_CTX
+
 
 def get_llm(temperature: float = 0.2) -> ChatOllama:
     '''Changed model to qwen2.5-coder:3b, takes a bit longer usually, but no more 5 min+ thinking.
