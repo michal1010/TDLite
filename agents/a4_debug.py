@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage
 from utils.config import TEMP_DEBUG
 from utils.llm import get_llm
 from utils.schemas import DebugReport
-from utils.state import AgentState
+from utils.state import AgentState, update_token_state
 from utils.debug_helpers import trim_test_output
 
 def parse_failing_test_names(output: str) -> list[str]:
@@ -81,13 +81,14 @@ Test output:
 {current_output}"""
 
 
-    llm = get_llm(temperature=TEMP_DEBUG).with_structured_output(DebugReport)
+    llm = get_llm(temperature=TEMP_DEBUG).with_structured_output(schema=DebugReport, include_raw=True)
     response = llm.invoke([HumanMessage(content=prompt)])
+    update_token_state(state, response["raw"], "a4")
 
     debug_report = (
-        f"Error Analysis: {response.error_analysis}\n"
-        f"Root Cause: {response.root_cause}\n"
-        f"Suggested Fix: {response.suggested_fix}"
+        f"Error Analysis: {response['parsed'].error_analysis}\n"
+        f"Root Cause: {response['parsed'].root_cause}\n"
+        f"Suggested Fix: {response['parsed'].suggested_fix}"
     )
 
     print("[A4 - Debug] diagnosis:")

@@ -11,7 +11,9 @@ from agents.a1_test_generation import agent_a11_structured_nl_specifications, ag
 from agents.a2_patch_creation import agent_a2_patch_creation
 from agents.a3_patch_revision import agent_a3_patch_revision
 from agents.a4_debug import agent_a4_debug
+from experiments.result_utils import append_run_results
 from utils.config import MAX_ITERATIONS
+from experiments.test_metrics import generate_coverage_report
 from utils.io_utils import parse_args, read_program_description
 from nodes.compile_check import compile_check
 from nodes.test_syntax_check import test_syntax_check
@@ -125,6 +127,12 @@ def main() -> AgentState:
         r = randint(0, len(descriptions) - 1)
         program_description = descriptions[r]
 
+    results_folder_name = None
+
+    if args.store_results:
+        results_folder_name = args.store_results
+        print(f"Results will be stored in folder: {results_folder_name}")
+
     app = build_graph()
 
 
@@ -141,6 +149,8 @@ def main() -> AgentState:
         "next_agent": "a1",
         "iteration": 0,
         "specifications": "",
+        "input_tokens": {},
+        "output_tokens": {},
     }
 
     print("\n" + "=" * 60)
@@ -159,8 +169,13 @@ def main() -> AgentState:
     print(f"  Iterations used: {final_state['iteration']}")
     print("=" * 60)
 
-    return final_state
+    return final_state, results_folder_name
 
 
 if __name__ == "__main__":
-    main()
+    final_state, results_folder_name = main()
+    print(f"Input tokens: {final_state['input_tokens']}")
+    print(f"Output tokens: {final_state['output_tokens']}")
+    report = generate_coverage_report(verbose=True)
+    if results_folder_name:
+        append_run_results(final_state=final_state, coverage_report=report, results_folder=results_folder_name)

@@ -4,7 +4,7 @@ from utils.config import PROGRAM_FILE, TEMP_GENERATE
 from utils.io_utils import save_text
 from utils.llm import get_llm
 from utils.schemas import Response
-from utils.state import AgentState
+from utils.state import AgentState, update_token_state
 from utils.debug_helpers import trim_test_output, extract_suggested_fix
 
 
@@ -106,10 +106,11 @@ def agent_a2_patch_creation(state: AgentState) -> dict:
     print(f"[A2 - Patch Creation] attempt {state['iteration'] + 1}")
     print("="*60)
 
-    llm = get_llm(temperature=TEMP_GENERATE).with_structured_output(Response)
+    llm = get_llm(temperature=TEMP_GENERATE).with_structured_output(schema=Response, include_raw=True)
     prompt = _build_prompt(state)
     response = llm.invoke([HumanMessage(content=prompt)])
-    code = response.content
+    code = response["parsed"].content
+    update_token_state(state, response["raw"], "a2")
 
     save_text(PROGRAM_FILE, code)
 
