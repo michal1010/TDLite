@@ -12,7 +12,7 @@ from agents.a2_patch_creation import agent_a2_patch_creation
 from agents.a3_patch_revision import agent_a3_patch_revision
 from agents.a4_debug import agent_a4_debug
 from experiments.result_utils import append_run_results
-from utils.config import MAX_ITERATIONS
+from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE, MAX_ITERATIONS
 from experiments.test_metrics import generate_coverage_report
 from utils.io_utils import parse_args, read_program_description
 from nodes.compile_check import compile_check
@@ -113,22 +113,25 @@ def main() -> AgentState:
     args = parse_args()
     program_description = ""
     description_file = None
-
-    if args.file:                                               
-        program_description = read_program_description(Path("inputs") / args.file)     
-    elif args.dataset == "MBPP":
+   
+    if args.dataset == "MBPP":
         print("Loading program description from MBPP dataset...")
         descriptions = get_mbpp_prompts()
         r = randint(0, len(descriptions) - 1)
         program_description = descriptions[r]
-    else:
+    elif args.dataset == "HumanEval":
         print(f"Reading program description from HumanEval dataset...")
         descriptions = get_humaneval_prompts()
         r = randint(0, len(descriptions) - 1)
         program_description = descriptions[r]
+    else:
+        file_name = args.file or str(DEFAULT_PROGRAM_DESCRIPTION_FILE)
+        description_file = Path("inputs") / file_name
+        print(f"Reading program description from file: {description_file}")
+        program_description = read_program_description(description_file)
 
     results_folder_name = None
-
+  
     if args.store_results:
         results_folder_name = args.store_results
         print(f"Results will be stored in folder: {results_folder_name}")
