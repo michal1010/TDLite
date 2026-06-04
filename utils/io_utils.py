@@ -27,17 +27,18 @@ def parse_args() -> argparse.Namespace:
         default="MBPP",
         help="dataset to use (HumanEval or MBPP)",
     )
-    
+
     # Implement the ability to specify if we are in debug mode or not
     parser.add_argument(
         "--debug",
         action="store_true",
         help="whether to run in debug mode with more verbose output and no retries",
-    ) 
+    )
 
     parser.add_argument(
         "--store_results",
         nargs="?",
+        const="results",
         default=None,
         help="defines folder to store experiment results in, implicitly enables results storage",
     )

@@ -132,10 +132,10 @@ def main() -> AgentState:
         descriptions = get_humaneval_prompts()
         r = randint(0, len(descriptions) - 1)
         program_description = descriptions[r]
-   
+
 
     results_folder_name = None
-  
+
     if args.store_results:
         results_folder_name = args.store_results
         print(f"Results will be stored in folder: {results_folder_name}")
@@ -186,5 +186,7 @@ if __name__ == "__main__":
     print(f"Input tokens: {final_state['input_tokens']}")
     print(f"Output tokens: {final_state['output_tokens']}")
     report = generate_coverage_report(verbose=True)
+    print(f"Coverage report: {report}")
+    print(f"{results_folder_name}")
     if results_folder_name:
         append_run_results(final_state=final_state, coverage_report=report, results_folder=results_folder_name)

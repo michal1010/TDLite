@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
@@ -49,6 +50,13 @@ def _read_text(path: Path) -> str:
 
 def _write_snapshot(content: str, output_path: Path) -> None:
     output_path.write_text(content, encoding="utf-8")
+
+
+def _write_json(content: Dict[str, Any], output_path: Path) -> None:
+    output_path.write_text(
+        json.dumps(content, indent=2),
+        encoding="utf-8",
+    )
 
 
 def _count_csv_rows(csv_path: Path) -> int:
@@ -119,6 +127,24 @@ def _build_row(final_state: AgentState, coverage_report: Dict[str, Any]) -> Dict
     return row
 
 
+def _build_agent_outputs(final_state: AgentState) -> Dict[str, Any]:
+    """Collect the generated artifacts that only live in the pipeline state."""
+    return {
+        "program_description": final_state.get("program_description", ""),
+        "a11_specifications": final_state.get("specifications", ""),
+        "a12_tests": final_state.get("tests", ""),
+        "final_code": final_state.get("code", ""),
+        "compile_output": final_state.get("compile_output", ""),
+        "test_outputs": final_state.get("test_outputs", []),
+        "debug_reports": final_state.get("debug_reports", []),
+        "ever_passed_tests": final_state.get("ever_passed_tests", []),
+        "tests_passed": final_state.get("tests_passed", False),
+        "iteration": final_state.get("iteration", 0),
+        "input_tokens": final_state.get("input_tokens", {}),
+        "output_tokens": final_state.get("output_tokens", {}),
+    }
+
+
 def append_run_results(
     final_state: AgentState,
     coverage_report: Dict[str, Any],
@@ -133,6 +159,9 @@ def append_run_results(
         coverage_report: Coverage report dict from generate_coverage_report().
         results_folder: Folder name for this experiment's results.
         specification_path: Optional path to the specification file.
+
+    Returns:
+        The per-run directory containing snapshots and JSON artifacts.
     """
     base_dir = Path(__file__).resolve().parents[1]
     results_root = Path(__file__).resolve().parent / "results"
@@ -148,6 +177,7 @@ def append_run_results(
     csv_path = results_dir / DEFAULT_RESULTS_CSV
     instance_id = _next_instance_id(csv_path, experiment_files_dir)
     instance_dir = experiment_files_dir / f"instance_{instance_id}"
+    print(f"{instance_dir}")
     while instance_dir.exists():
         instance_id += 1
         instance_dir = experiment_files_dir / f"instance_{instance_id}"
@@ -181,6 +211,12 @@ def append_run_results(
     _write_snapshot(_read_text(patch_path), patch_snapshot)
     _write_snapshot(_read_text(spec_path), spec_snapshot)
 
+    agent_outputs_path = instance_dir / "agent_outputs.json"
+    coverage_report_path = instance_dir / "coverage_report.json"
+    run_summary_path = instance_dir / "run_summary.json"
+    _write_json(_build_agent_outputs(final_state), agent_outputs_path)
+    _write_json(coverage_report, coverage_report_path)
+
     row = _build_row(final_state, coverage_report)
     row["instance_id"] = instance_id
     row["instance_dir"] = str(Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}")
@@ -193,6 +229,16 @@ def append_run_results(
     row["specification_snapshot"] = str(
         Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / spec_path.name
     )
+    row["agent_outputs_snapshot"] = str(
+        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / agent_outputs_path.name
+    )
+    row["coverage_report_snapshot"] = str(
+        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / coverage_report_path.name
+    )
+    row["run_summary_snapshot"] = str(
+        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / run_summary_path.name
+    )
+    _write_json(row, run_summary_path)
 
     header = _read_existing_header(csv_path)
     fieldnames: Iterable[str] = header or list(row.keys())
@@ -204,4 +250,4 @@ def append_run_results(
             writer.writeheader()
         writer.writerow(row)
 
-    return csv_path
+    return instance_dir
