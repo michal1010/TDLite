@@ -113,8 +113,16 @@ def main() -> AgentState:
     args = parse_args()
     program_description = ""
     description_file = None
-   
-    if args.dataset == "MBPP":
+    if args.debug:
+        import utils.config as _cfg
+        _cfg.MAX_ITERATIONS = 1
+        print("[DEBUG MODE] max iterations set to 1")
+    if args.file is not None:
+        file_name = args.file or str(DEFAULT_PROGRAM_DESCRIPTION_FILE)
+        description_file = Path("inputs") / file_name
+        print(f"Reading program description from file: {description_file}")
+        program_description = read_program_description(description_file)
+    elif args.dataset == "MBPP":
         print("Loading program description from MBPP dataset...")
         descriptions = get_mbpp_prompts()
         r = randint(0, len(descriptions) - 1)
@@ -124,11 +132,7 @@ def main() -> AgentState:
         descriptions = get_humaneval_prompts()
         r = randint(0, len(descriptions) - 1)
         program_description = descriptions[r]
-    else:
-        file_name = args.file or str(DEFAULT_PROGRAM_DESCRIPTION_FILE)
-        description_file = Path("inputs") / file_name
-        print(f"Reading program description from file: {description_file}")
-        program_description = read_program_description(description_file)
+   
 
     results_folder_name = None
   

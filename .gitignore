@@ -4,3 +4,5 @@ generated_program.py
 test_generated_program.py
 .coverage
 experiments/results/
+.DS_Store
+last_llm_raw_output.json

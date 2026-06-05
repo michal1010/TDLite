@@ -24,7 +24,7 @@ def run_tests(state: AgentState) -> AgentState:
     tests_passed = result.returncode == 0
     passed_now = parse_passed_test_names(test_output)
     ever_passed = list(set(state["ever_passed_tests"]) | set(passed_now))
-    next_agent = "end" if tests_passed else "a4"
+    next_agent = "__end__" if tests_passed else "a4"
 
     print(f"\n{'=' * 60}")
     print(f"[Test Run] routing -> {next_agent}")

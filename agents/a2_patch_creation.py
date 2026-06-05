@@ -122,4 +122,6 @@ def agent_a2_patch_creation(state: AgentState) -> dict:
         "tests_passed":   False,
         "next_agent":     "compile_check",
         "iteration":      state["iteration"] + 1,
+        "input_tokens":  state["input_tokens"],
+        "output_tokens": state["output_tokens"],
     }
