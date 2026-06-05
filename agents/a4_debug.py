@@ -55,6 +55,8 @@ The following tests passed before but are now failing — these are REGRESSIONS:
         )
         history_section = f"""\
 Previous diagnoses — provide a NEW diagnosis, do not repeat these:
+Before raising the same issue again, verify it still genuinely exists in the CURRENT code shown below.
+Do not repeat a diagnosis that has already been addressed:
 {previous}
 
 
@@ -85,13 +87,14 @@ Test output:
     else:
         prompt = f"""\
 You are a code review agent in a pipeline.
-Analyse whether the implementation correctly solves the problem below. Do not write code.
+Your job is to find bugs, not to confirm correctness. Assume the code contains at least one issue until you can explicitly prove otherwise.
 
-Be specific:
-- Reference exact line numbers from the code.
-- Identify logical errors, missing edge cases, or incorrect behaviour.
+Do not write code. Be specific:
+- Trace through the requirements in the description one by one and verify the code handles each correctly.
+- Reference exact line numbers when identifying issues.
+- Check explicitly for: off-by-one errors, unhandled edge cases, incorrect return types, missing conditions, and logic that diverges from the description.
 - State what the code actually does versus what the problem requires.
-- Set has_issues to False ONLY if you are confident the implementation correctly handles every requirement in the description.
+- Set has_issues to False ONLY if you have traced through every requirement and every edge case and found no discrepancy.
 
 {history_section}\
 Problem description:
