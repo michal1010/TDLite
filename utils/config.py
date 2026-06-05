@@ -10,6 +10,7 @@ TEMP_GENERATE = 0.2   # A1, A2 — slightly exploratory
 TEMP_DEBUG    = 0.2   # A4    — conservative, analytical
 
 MAX_ITERATIONS = 8
+MAX_COMPILE_ITERATIONS = 5
 
 TEST_EXAMPLE = """\
 import unittest

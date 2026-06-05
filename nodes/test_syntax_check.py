@@ -30,7 +30,7 @@ def test_syntax_check(state: AgentState) -> AgentState:
         
     print(test_output)
     next_agent = "a2"
-    iterations = state["iteration"]  
+    compile_iter = state["compile_iteration"] 
     # If there is a syntax error we can retry with the initial agent
     if not syntax_ok:
         
@@ -53,8 +53,9 @@ def test_syntax_check(state: AgentState) -> AgentState:
         "debug_reports": state["debug_reports"],
         "ever_passed_tests": state["ever_passed_tests"],
         "next_agent": next_agent,
-        "iteration": iterations,
+        "iteration": state["iteration"],
         "specifications": state["specifications"],
         "input_tokens": state["input_tokens"],
         "output_tokens": state["output_tokens"],
+        "compile_iteration": compile_iter,
     }

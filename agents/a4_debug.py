@@ -29,14 +29,16 @@ def agent_a4_debug(state: AgentState) -> AgentState:
     print(f"[A4 - Debug] analysing failure at iteration {state['iteration']}")
     print("="*60)
 
-    current_output = trim_test_output(state["test_outputs"][-1])
+    has_tests = bool(state["tests"])
 
-    failing_now = parse_failing_test_names(current_output)
-    regressions = [t for t in state["ever_passed_tests"] if t in failing_now]
-
+    current_output = ""
     regression_section = ""
-    if regressions:
-        regression_section = f"""\
+    if has_tests:
+        current_output = trim_test_output(state["test_outputs"][-1])
+        failing_now = parse_failing_test_names(current_output)
+        regressions = [t for t in state["ever_passed_tests"] if t in failing_now]
+        if regressions:
+            regression_section = f"""\
 
 The following tests passed before but are now failing — these are REGRESSIONS:
 {', '.join(regressions)}
@@ -53,12 +55,15 @@ The following tests passed before but are now failing — these are REGRESSIONS:
         )
         history_section = f"""\
 Previous diagnoses — provide a NEW diagnosis, do not repeat these:
+Before raising the same issue again, verify it still genuinely exists in the CURRENT code shown below.
+Do not repeat a diagnosis that has already been addressed:
 {previous}
 
 
 """
 
-    prompt = f"""\
+    if has_tests:
+        prompt = f"""\
 You are a debugging agent in a TDD pipeline.
 Analyse why the tests are failing. Do not write code. The test code is correct.
 
@@ -79,6 +84,24 @@ Current code:
 
 Test output:
 {current_output}"""
+    else:
+        prompt = f"""\
+You are a code review agent in a pipeline.
+Your job is to find bugs, not to confirm correctness. Assume the code contains at least one issue until you can explicitly prove otherwise.
+
+Do not write code. Be specific:
+- Trace through the requirements in the description one by one and verify the code handles each correctly.
+- Reference exact line numbers when identifying issues.
+- Check explicitly for: off-by-one errors, unhandled edge cases, incorrect return types, missing conditions, and logic that diverges from the description.
+- State what the code actually does versus what the problem requires.
+- Set has_issues to False ONLY if you have traced through every requirement and every edge case and found no discrepancy.
+
+{history_section}\
+Problem description:
+{state["program_description"]}
+
+Current code:
+{with_line_numbers(state["code"])}"""
 
 
     llm = get_llm(temperature=TEMP_DEBUG).with_structured_output(schema=DebugReport, include_raw=True)
@@ -110,4 +133,6 @@ Test output:
         "iteration":           state["iteration"],
         "input_tokens":        state["input_tokens"],
         "output_tokens":       state["output_tokens"],
+        "compile_iteration": state["compile_iteration"],
+        "debug_has_issues":    response["parsed"].has_issues,
     }
