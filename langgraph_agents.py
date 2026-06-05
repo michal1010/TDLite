@@ -186,7 +186,5 @@ if __name__ == "__main__":
     print(f"Input tokens: {final_state['input_tokens']}")
     print(f"Output tokens: {final_state['output_tokens']}")
     report = generate_coverage_report(verbose=True)
-    print(f"Coverage report: {report}")
-    print(f"{results_folder_name}")
     if results_folder_name:
         append_run_results(final_state=final_state, coverage_report=report, results_folder=results_folder_name)
