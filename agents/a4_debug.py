@@ -110,4 +110,5 @@ Test output:
         "iteration":           state["iteration"],
         "input_tokens":        state["input_tokens"],
         "output_tokens":       state["output_tokens"],
+        "compile_iteration": state["compile_iteration"],
     }

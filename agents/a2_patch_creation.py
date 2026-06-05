@@ -35,25 +35,35 @@ def _build_prompt(state: AgentState) -> str:
     test_outputs  = state["test_outputs"]
 
     is_first_attempt = not code
+    has_tests = bool(tests)
 
-    if is_first_attempt:
-        task = "Write a Python implementation that passes all the tests below."
+    if has_tests:
+        if is_first_attempt:
+            task = "Write a Python implementation that passes all the tests below."
+        else:
+            task = "Fix the implementation below so it passes the failing tests."
     else:
-        task = "Fix the implementation below so it passes the failing tests."
+        if is_first_attempt:
+            task = "Write a Python implementation for the problem description below."
+        else:
+            task = "Fix the implementation below based on the diagnostic report below."
 
     prompt = f"""\
-You are a code-writing agent in a TDD pipeline.
+You are a code-writing agent in a {"TDD " if has_tests else ""}pipeline.
 {task}
 
 Rules:
 - Put ONLY raw Python code in the `content` field. No markdown fences. No explanations.
-- Match the exact class/function names imported in the tests.
-- Handle every edge case visible in the tests.
+- {"Match the exact class/function names imported in the tests." if has_tests else "Use the function or class name specified in the problem description."}
+- Handle every edge case {"visible in the tests" if has_tests else "described in the problem"}.
 - Do not repeat an approach that has already failed.
 - Do NOT add any import from outputs.generated_program. That import is only for the test file.
 
 Problem description:
-{description}
+{description}"""
+
+    if has_tests:
+        prompt += f"""
 
 Tests to pass:
 {tests}"""
@@ -124,4 +134,5 @@ def agent_a2_patch_creation(state: AgentState) -> dict:
         "iteration":      state["iteration"] + 1,
         "input_tokens":  state["input_tokens"],
         "output_tokens": state["output_tokens"],
+        "compile_iteration": 0,
     }

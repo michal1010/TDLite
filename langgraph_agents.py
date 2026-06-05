@@ -158,6 +158,7 @@ def main() -> AgentState:
         "specifications": "",
         "input_tokens": {},
         "output_tokens": {},
+        "compile_iteration": 0,
     }
 
     print("\n" + "=" * 60)
