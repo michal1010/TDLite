@@ -206,10 +206,12 @@ def append_run_results(
     test_snapshot = instance_dir / test_path.name
     patch_snapshot = instance_dir / patch_path.name
     spec_snapshot = instance_dir / spec_path.name
+    task_snapshot = instance_dir / "task.txt"
 
     _write_snapshot(_read_text(test_path), test_snapshot)
     _write_snapshot(_read_text(patch_path), patch_snapshot)
     _write_snapshot(_read_text(spec_path), spec_snapshot)
+    _write_snapshot(final_state.get("program_description", ""), task_snapshot)
 
     agent_outputs_path = instance_dir / "agent_outputs.json"
     coverage_report_path = instance_dir / "coverage_report.json"
@@ -228,6 +230,9 @@ def append_run_results(
     )
     row["specification_snapshot"] = str(
         Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / spec_path.name
+    )
+    row["task_snapshot"] = str(
+        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / task_snapshot.name
     )
     row["agent_outputs_snapshot"] = str(
         Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / agent_outputs_path.name
