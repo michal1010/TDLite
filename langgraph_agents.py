@@ -159,6 +159,7 @@ def main() -> AgentState:
         "input_tokens": {},
         "output_tokens": {},
         "compile_iteration": 0,
+        "debug_has_issues": True
     }
 
     print("\n" + "=" * 60)

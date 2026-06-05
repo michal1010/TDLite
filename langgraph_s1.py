@@ -97,6 +97,7 @@ def main() -> AgentState:
         "specifications": "",
         "input_tokens": {},
         "output_tokens": {},
+        "debug_has_issues": True
     }
 
     print("\n" + "=" * 60)
@@ -122,5 +123,3 @@ if __name__ == "__main__":
     final_state = main()
     print(f"Input tokens: {final_state['input_tokens']}")
     print(f"Output tokens: {final_state['output_tokens']}")
-    # Note: coverage reporting and result logging are not applicable for Setting 1
-    # (no generated test file). Wire up a non-TDD result logger here when ready.
