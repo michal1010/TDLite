@@ -108,4 +108,6 @@ Test output:
         "ever_passed_tests":   state["ever_passed_tests"],
         "next_agent":          "a2",
         "iteration":           state["iteration"],
+        "input_tokens":        state["input_tokens"],
+        "output_tokens":       state["output_tokens"],
     }

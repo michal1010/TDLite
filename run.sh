@@ -19,7 +19,7 @@ rm -f generated_program.py test_generated_program.py
 
 DESCRIPTION_ARG=()
 if [ $# -ge 1 ]; then
-    DESCRIPTION_ARG=(--description-file "$1")
+    DESCRIPTION_ARG=(--file "$1")
 fi
 
 "$PYTHON_EXEC" langgraph_agents.py "${DESCRIPTION_ARG[@]}"

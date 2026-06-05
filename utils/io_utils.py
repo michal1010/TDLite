@@ -18,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     group.add_argument(
         "--file",
         nargs="?",
-        default=str(DEFAULT_PROGRAM_DESCRIPTION_FILE),
+        default=None,
         help="program description file to use",
     )
     group.add_argument(
@@ -29,7 +29,7 @@ def parse_args() -> argparse.Namespace:
     )
     
     # Implement the ability to specify if we are in debug mode or not
-    group.add_argument(
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="whether to run in debug mode with more verbose output and no retries",
