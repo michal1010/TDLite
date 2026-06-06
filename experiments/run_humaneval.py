@@ -135,9 +135,12 @@ def run_on_problems(
 
         result, agent_state = run_single(problem, hidden_tests[pid], graph, initial_state)
 
+        save_generated_test_artifacts = _has_generated_test_artifacts(agent_state)
+        interal_pass = result["internal_pass"] if save_generated_test_artifacts else "n/a"
+
         status = "PASS ✓" if result["humaneval_pass"] else "FAIL ✗"
         print(f"\n  Result: {status}  |  iterations: {result['iterations']}"
-              f"  |  internal_pass: {result['internal_pass']}")
+              f"  |  internal_pass: {interal_pass}")
         if result["error"]:
             error_lines = result["error"].splitlines()
             print(f"  Error:  {error_lines[-1] if error_lines else result['error']}")
@@ -145,7 +148,6 @@ def run_on_problems(
         print(f"Input tokens: {result['input_tokens']}")
         print(f"Output tokens: {result['output_tokens']}")
 
-        save_generated_test_artifacts = _has_generated_test_artifacts(agent_state)
         report = None
         if save_generated_test_artifacts:
             report = generate_coverage_report(verbose=True)
@@ -167,12 +169,12 @@ def run_on_problems(
                 save_generated_test_artifacts=save_generated_test_artifacts,
             )
 
-    return results
+    return results, save_generated_test_artifacts
 
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 
-def print_summary(results: list[dict], run_dir: Path) -> None:
+def print_summary(results: list[dict], run_dir: Path, has_tests: bool) -> None:
     total  = len(results)
     passed = sum(1 for r in results if r["humaneval_pass"])
     avg_it = sum(r["iterations"] for r in results) / total if total else 0
@@ -188,7 +190,10 @@ def print_summary(results: list[dict], run_dir: Path) -> None:
     print(f"  {'-'*65}")
     for r in results:
         he = "PASS" if r["humaneval_pass"] else "FAIL"
-        ip = "pass" if r["internal_pass"]  else "fail"
+        if has_tests:
+            ip = "pass" if r["internal_pass"]  else "fail"
+        else:
+            ip = "n/a"
         print(f"  {r['problem_id']:<6} {r['entry_point']:<32} {he:<11} {ip:<10} {r['iterations']}")
     print(f"{'='*60}")
 
@@ -221,8 +226,8 @@ def run_experiments_humaneval(args, graph, initial_state) -> None:
         print("No matching problems found. HumanEval has IDs 0–163.")
         sys.exit(1)
 
-    results = run_on_problems(problems, hidden_tests, graph, initial_state, args.store_results)
+    results, has_tests = run_on_problems(problems, hidden_tests, graph, initial_state, args.store_results)
 
     if args.store_results:
         append_experiments_results(results, args.store_results, timestamp)
-        print_summary(results, args.store_results)
+        print_summary(results, args.store_results, has_tests)
