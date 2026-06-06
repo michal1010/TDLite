@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from random import randint
+import shutil
 from langgraph.graph import StateGraph
 from datasets import load_dataset
 from experiments.result_utils import append_single_run_results
@@ -13,6 +14,8 @@ import scenarios.langgraph_s4 as langgraph_s4
 import scenarios.langgraph_s1 as langgraph_s1
 import scenarios.langgraph_s2 as langgraph_s2
 from experiments.run_humaneval import run_experiments_humaneval
+
+OUTPUTS_DIR = Path(__file__).resolve().parent / "outputs"
 
 
 def get_humaneval_prompts() -> list[str]:
@@ -49,6 +52,15 @@ def _has_generated_test_artifacts(state: AgentState | None) -> bool:
     )
 
 
+def clear_outputs_dir() -> None:
+    OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+    for path in OUTPUTS_DIR.iterdir():
+        if path.is_dir() and not path.is_symlink():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
+
+
 def run_problem(args, graph: StateGraph, initial_state: AgentState, description_file=None) -> dict:
 
     results_folder_name = None
@@ -63,6 +75,7 @@ def run_problem(args, graph: StateGraph, initial_state: AgentState, description_
     print(f'  Scenario: {args.scenario}')
     print("=" * 60)
 
+    clear_outputs_dir()
     final_state = graph.invoke(initial_state)
 
     print("\n" + "=" * 60)
@@ -127,6 +140,7 @@ def main() -> AgentState:
         initial_state["program_description"] = program_description
         run_problem(args, graph, initial_state, description_file)
     else:
+        clear_outputs_dir()
         run_experiments_humaneval(args, graph, initial_state)
 
 
