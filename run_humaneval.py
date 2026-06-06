@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import sys
 import traceback
 from datetime import datetime
@@ -233,66 +232,3 @@ def run_experiments_humaneval(args):
     if args.store_results:
         append_experiments_results(results, args.store_results, timestamp)
         print_summary(results, args.store_results)
-
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Run TDLite on HumanEval problems.",
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog=(
-            "Examples:\n"
-            "  python run_humaneval.py --ids 0 5 12 47\n"
-            "  python run_humaneval.py --range 0 9\n"
-            "  python run_humaneval.py --range 0 163\n"
-        ),
-    )
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--ids", nargs="+", type=int, metavar="ID",
-        help="Specific problem IDs  e.g. --ids 0 5 12 47",
-    )
-    group.add_argument(
-        "--range", nargs=2, type=int, metavar=("START", "END"),
-        help="Inclusive ID range    e.g. --range 0 9",
-    )
-
-    parser.add_argument(
-        "--scenario",
-        choices=["s1", "s2", "s3", "s4"],
-        required=True,
-        help="Scenario to run: s1, s2, s3, or s4"
-    )
-
-    parser.add_argument(
-        "--store_results",
-        nargs="?",
-        const="results",
-        default=None,
-        help="defines folder to store experiment results in, implicitly enables results storage",
-    )
-
-    args = parser.parse_args()
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    ids         = args.ids if args.ids else None
-    range_start = args.range[0] if args.range else None
-    range_end   = args.range[1] if args.range else None
-
-    print("Loading HumanEval dataset...")
-    problems     = get_problems(ids=ids, range_start=range_start, range_end=range_end)
-    hidden_tests = get_hidden_tests(ids=ids, range_start=range_start, range_end=range_end)
-
-    if not problems:
-        print("No matching problems found. HumanEval has IDs 0–163.")
-        sys.exit(1)
-
-    graph = choose_scenario(args.scenario)
-
-    results = run_on_problems(problems, hidden_tests, graph, args.store_results)
-
-    if args.store_results:
-        append_experiments_results(results, args.store_results, timestamp)
-        print_summary(results, args.store_results)
-
-
-if __name__ == "__main__":
-    main()

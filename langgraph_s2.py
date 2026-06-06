@@ -1,32 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
-from random import randint
 from typing import Literal
-
 from langgraph.graph import END, StateGraph
-
-from datasets import load_dataset
 from agents.a2_patch_creation import agent_a2_patch_creation
 from agents.a3_patch_revision import agent_a3_patch_revision
 from agents.a4_debug import agent_a4_debug
-from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE, MAX_ITERATIONS, MAX_COMPILE_ITERATIONS
-from utils.io_utils import parse_args, read_program_description
+from utils.config import MAX_ITERATIONS, MAX_COMPILE_ITERATIONS
 from nodes.compile_check import compile_check
 from utils.state import AgentState
-
-
-def get_humaneval_prompts() -> list[str]:
-    ds = load_dataset("openai/openai_humaneval")
-    samples = ds["test"][:10]
-    print(samples)
-    return samples["prompt"]
-
-
-def get_mbpp_prompts() -> list[str]:
-    ds = load_dataset("google-research-datasets/mbpp", "full")
-    samples = ds["test"][:10]
-    return samples["text"]
 
 
 def route_after_compile(state: AgentState) -> Literal["a4", "a3", "__end__"]:
@@ -97,54 +78,3 @@ def create_initial_state(program_description: str) -> AgentState:
         "input_tokens": {},
         "output_tokens": {},
     }
-
-def main() -> AgentState:
-    args = parse_args()
-    program_description = ""
-    description_file = None
-
-    if args.dataset == "MBPP":
-        print("Loading program description from MBPP dataset...")
-        descriptions = get_mbpp_prompts()
-        r = randint(0, len(descriptions) - 1)
-        program_description = descriptions[r]
-    elif args.dataset == "HumanEval":
-        print(f"Reading program description from HumanEval dataset...")
-        descriptions = get_humaneval_prompts()
-        r = randint(0, len(descriptions) - 1)
-        program_description = descriptions[r]
-    else:
-        file_name = args.file or str(DEFAULT_PROGRAM_DESCRIPTION_FILE)
-        description_file = Path("inputs") / file_name
-        print(f"Reading program description from file: {description_file}")
-        program_description = read_program_description(description_file)
-
-    app = build_graph()
-
-    initial_state = create_initial_state(program_description)
-
-    print("\n" + "=" * 60)
-    print("  LangGraph Non-TDD With Self-Iteration Pipeline - Starting")
-    print(f"  Description file: {description_file if description_file else 'None, using dataset example'}")
-    print("  A2 code -> compile -> A4 review -> A2 loop")
-    print("=" * 60)
-
-    final_state = app.invoke(initial_state)
-
-    print("\n" + "=" * 60)
-    if not final_state["debug_has_issues"]:
-        print("  Pipeline finished: A4 satisfied with implementation.")
-    elif final_state["compile_output"] != "Compilation succeeded.":
-        print("  Pipeline stopped: max compile iterations reached without success.")
-    else:
-        print("  Pipeline stopped: max iterations reached.")
-    print(f"  Iterations used: {final_state['iteration']}")
-    print("=" * 60)
-
-    return final_state
-
-
-if __name__ == "__main__":
-    final_state = main()
-    print(f"Input tokens: {final_state['input_tokens']}")
-    print(f"Output tokens: {final_state['output_tokens']}")
