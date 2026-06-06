@@ -86,10 +86,10 @@ def build_graph() -> StateGraph:
     return graph.compile()
 
 
-def create_initial_state(program_description: str) -> AgentState:
+def create_initial_state() -> AgentState:
         return {
         "messages": [],
-        "program_description": program_description,
+        "program_description": "",
         "tests": "",
         "code": "",
         "compile_output": "",

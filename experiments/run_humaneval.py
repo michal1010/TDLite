@@ -6,10 +6,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from experiments.test_metrics import generate_coverage_report
-from humaneval_loader import get_problems, get_hidden_tests
-import langgraph_s4
-import langgraph_s1
-import langgraph_s2
+from experiments.humaneval_loader import get_problems, get_hidden_tests
+import scenarios.langgraph_s4 as langgraph_s4
+import scenarios.langgraph_s1 as langgraph_s1
+import scenarios.langgraph_s2 as langgraph_s2
 from utils.state import AgentState
 from experiments.result_utils import (
     append_experiments_results,
@@ -40,41 +40,21 @@ def evaluate_solution(code: str, test_code: str, entry_point: str) -> tuple[bool
         return False, f"{type(exc).__name__}: {exc}"
 
 
-def _build_initial_state(description: str) -> AgentState:
-    return  {
-        "messages": [],
-        "program_description": description,
-        "tests": "",
-        "code": "",
-        "compile_output": "",
-        "tests_passed": False,
-        "test_outputs": [],
-        "debug_reports": [],
-        "ever_passed_tests": [],
-        "next_agent": "a1",
-        "iteration": 0,
-        "specifications": "",
-        "input_tokens": {},
-        "output_tokens": {},
-        "compile_iteration": 0,
-        "debug_has_issues": True
-    }
-
-
-def run_pipeline(graph: Any, description: str) -> AgentState:
+def run_pipeline(graph: Any, description: str, initial_state: AgentState) -> AgentState:
     """
     Run the full TDLite pipeline on a problem description string.
     Used by run_humaneval.py and main() below.
     Returns the final AgentState.
     """
-    app = graph
-    return app.invoke(_build_initial_state(description))
+    initial_state["program_description"] = description
+    return graph.invoke(initial_state)
 
 
 def run_single(
     problem: dict,
     hidden: dict,
     graph: Any,
+    initial_state: AgentState,
 ) -> tuple[dict, AgentState | None, Path]:
     """
     Run the pipeline on one problem, then evaluate against hidden tests.
@@ -91,7 +71,7 @@ def run_single(
     try:
         # ── Pipeline sees only the prompt ─────────────────────────────────────
         print(f"Running pipeline for problem {pid}...")
-        final_state = run_pipeline(graph, problem["prompt"])
+        final_state = run_pipeline(graph, problem["prompt"], initial_state)
 
         code          = final_state.get("code", "")
         internal_pass = final_state.get("tests_passed", False)
@@ -134,6 +114,7 @@ def run_on_problems(
     problems:     list[dict],
     hidden_tests: dict[int, dict],
     graph:        Any,
+    initial_state: AgentState,
     results_folder: str | None,
 ) -> list[dict]:
     results = []
@@ -144,7 +125,7 @@ def run_on_problems(
         print(f"# [{i+1}/{len(problems)}] Problem {pid}  —  {hidden_tests[pid]['entry_point']}")
         print(f"{'#'*60}")
 
-        result, agent_state = run_single(problem, hidden_tests[pid], graph)
+        result, agent_state = run_single(problem, hidden_tests[pid], graph, initial_state)
 
         status = "PASS ✓" if result["humaneval_pass"] else "FAIL ✗"
         print(f"\n  Result: {status}  |  iterations: {result['iterations']}"
@@ -211,7 +192,7 @@ def choose_scenario(scenario: str):
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
-def run_experiments_humaneval(args):
+def run_experiments_humaneval(args, graph, initial_state) -> None:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     ids         = args.ids if args.ids else None
     range_start = args.range[0] if args.range else None
@@ -225,9 +206,7 @@ def run_experiments_humaneval(args):
         print("No matching problems found. HumanEval has IDs 0–163.")
         sys.exit(1)
 
-    graph = choose_scenario(args.scenario)
-
-    results = run_on_problems(problems, hidden_tests, graph, args.store_results)
+    results = run_on_problems(problems, hidden_tests, graph, initial_state, args.store_results)
 
     if args.store_results:
         append_experiments_results(results, args.store_results, timestamp)
