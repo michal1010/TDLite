@@ -168,7 +168,8 @@ def run_on_problems(
             append_single_run_results(
                 final_state=agent_state,
                 coverage_report=report,
-                results_folder=results_folder
+                results_folder=results_folder,
+                hidden_test=hidden_tests[pid]["test"],
             )
 
     return results

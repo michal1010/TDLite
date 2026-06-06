@@ -181,6 +181,7 @@ def append_single_run_results(
     results_folder: str,
     specification_path: Optional[Path] = None,
     base_dir: Optional[Path] = None,
+    hidden_test: Optional[str] = None,
 ) -> Path:
     """
     Append a pipeline run summary to a CSV file under experiments/results/<folder>.
@@ -190,6 +191,7 @@ def append_single_run_results(
         coverage_report: Coverage report dict from generate_coverage_report().
         results_folder: Folder name for this experiment's results.
         specification_path: Optional path to the specification file.
+        hidden_test: Optional HumanEval hidden test code to snapshot.
 
     Returns:
         The per-run directory containing snapshots and JSON artifacts.
@@ -233,11 +235,14 @@ def append_single_run_results(
     patch_snapshot = instance_dir / patch_path.name
     spec_snapshot = instance_dir / spec_path.name
     task_snapshot = instance_dir / "task.txt"
+    hidden_test_snapshot = instance_dir / "hidden_test.py"
 
     _write_snapshot(_read_text(test_path), test_snapshot)
     _write_snapshot(_read_text(patch_path), patch_snapshot)
     _write_snapshot(_read_text(spec_path), spec_snapshot)
     _write_snapshot(final_state.get("program_description", ""), task_snapshot)
+    if hidden_test is not None:
+        _write_snapshot(hidden_test, hidden_test_snapshot)
 
     agent_outputs_path = instance_dir / "agent_outputs.json"
     coverage_report_path = instance_dir / "coverage_report.json"
