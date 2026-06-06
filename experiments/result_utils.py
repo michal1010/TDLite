@@ -145,11 +145,22 @@ def _build_agent_outputs(final_state: AgentState) -> Dict[str, Any]:
     }
 
 
-def append_run_results(
+def create_results_dir(results_folder: str) -> Path:
+    results_root = Path(__file__).resolve().parent / "results"
+    results_root.mkdir(parents=True, exist_ok=True)
+
+    folder_name = _normalize_folder_name(results_folder)
+    results_dir = results_root / folder_name
+    results_dir.mkdir(parents=True, exist_ok=True)
+    return results_dir
+
+
+def append_single_run_results(
     final_state: AgentState,
     coverage_report: Dict[str, Any],
     results_folder: str,
     specification_path: Optional[Path] = None,
+    base_dir: Optional[Path] = None,
 ) -> Path:
     """
     Append a pipeline run summary to a CSV file under experiments/results/<folder>.
@@ -163,13 +174,7 @@ def append_run_results(
     Returns:
         The per-run directory containing snapshots and JSON artifacts.
     """
-    base_dir = Path(__file__).resolve().parents[1]
-    results_root = Path(__file__).resolve().parent / "results"
-    results_root.mkdir(parents=True, exist_ok=True)
-
-    folder_name = _normalize_folder_name(results_folder)
-    results_dir = results_root / folder_name
-    results_dir.mkdir(parents=True, exist_ok=True)
+    results_dir = create_results_dir(results_folder)
 
     experiment_files_dir = results_dir / EXPERIMENT_FILES_DIR
     experiment_files_dir.mkdir(parents=True, exist_ok=True)
@@ -190,6 +195,7 @@ def append_run_results(
     if not patch_file_value:
         raise ValueError("coverage_report is missing 'patch_file'.")
 
+    base_dir = Path(__file__).resolve().parents[1]
     test_path = _resolve_path(str(test_file_value), base_dir)
     patch_path = _resolve_path(str(patch_file_value), base_dir)
     if specification_path is None:
@@ -256,3 +262,15 @@ def append_run_results(
         writer.writerow(row)
 
     return instance_dir
+
+def append_experiments_results(results: dict, results_folder: str, timestamp: str) -> None:
+    results_dir = create_results_dir(results_folder)
+    summary = {
+        "timestamp": timestamp,
+        "total":     len(results),
+        "passed":    sum(1 for r in results if r["humaneval_pass"]),
+        "pass_rate": sum(1 for r in results if r["humaneval_pass"]) / len(results),
+        "avg_iters": sum(r["iterations"] for r in results) / len(results),
+        "results":   results,
+    }
+    _write_json(summary, results_dir / f"summary_{timestamp}.json")

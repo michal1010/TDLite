@@ -11,7 +11,7 @@ from agents.a1_test_generation import agent_a11_structured_nl_specifications, ag
 from agents.a2_patch_creation import agent_a2_patch_creation
 from agents.a3_patch_revision import agent_a3_patch_revision
 from agents.a4_debug import agent_a4_debug
-from experiments.result_utils import append_run_results
+from experiments.result_utils import append_single_run_results
 from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE, MAX_ITERATIONS
 from experiments.test_metrics import generate_coverage_report
 from utils.io_utils import parse_args, read_program_description
@@ -187,4 +187,4 @@ if __name__ == "__main__":
     print(f"Output tokens: {final_state['output_tokens']}")
     report = generate_coverage_report(verbose=True)
     if results_folder_name:
-        append_run_results(final_state=final_state, coverage_report=report, results_folder=results_folder_name)
+        append_single_run_results(final_state=final_state, coverage_report=report, results_folder=results_folder_name)
