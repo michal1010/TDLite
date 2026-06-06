@@ -108,6 +108,14 @@ def run_single(
     return result, final_state
 
 
+def _has_generated_test_artifacts(state: AgentState | None) -> bool:
+    return bool(
+        state
+        and state.get("tests")
+        and state.get("specifications")
+    )
+
+
 # ── Main loop ─────────────────────────────────────────────────────────────────
 
 def run_on_problems(
@@ -137,19 +145,26 @@ def run_on_problems(
         print(f"Input tokens: {result['input_tokens']}")
         print(f"Output tokens: {result['output_tokens']}")
 
+        save_generated_test_artifacts = _has_generated_test_artifacts(agent_state)
         report = None
-        report = generate_coverage_report(verbose=True)
+        if save_generated_test_artifacts:
+            report = generate_coverage_report(verbose=True)
+            result["line_coverage_percent"] = report["line_coverage"]["percent"]
+            result["branch_coverage_percent"] = report["branch_coverage"]["percent"]
+        else:
+            print("Coverage report skipped: this scenario did not generate tests/specifications.")
+            result["line_coverage_percent"] = 0
+            result["branch_coverage_percent"] = 0
 
-        result["line_coverage_percent"] = report['line_coverage']['percent']
-        result["branch_coverage_percent"] = report['branch_coverage']['percent']
         results.append(result)
 
-        if results_folder:
+        if results_folder and agent_state is not None:
             append_single_run_results(
                 final_state=agent_state,
                 coverage_report=report,
                 results_folder=results_folder,
                 hidden_test=hidden_tests[pid]["test"],
+                save_generated_test_artifacts=save_generated_test_artifacts,
             )
 
     return results

@@ -8,6 +8,8 @@ from typing import Any, Dict, Iterable, Optional
 from utils.state import AgentState
 
 DEFAULT_SPECIFICATION_FILE = Path("outputs/specifications.txt")
+DEFAULT_PROGRAM_FILE = Path("outputs/generated_program.py")
+DEFAULT_TEST_FILE = Path("outputs/test_generated_program.py")
 DEFAULT_RESULTS_CSV = "results.csv"
 EXPERIMENT_FILES_DIR = "experiment_files"
 AGENTS = ("a11", "a12", "a2", "a3", "a4")
@@ -112,7 +114,8 @@ def _next_instance_id(csv_path: Path, experiment_files_dir: Path) -> int:
     return max(csv_rows, existing) + 1
 
 
-def _build_row(final_state: AgentState, coverage_report: Dict[str, Any]) -> Dict[str, Any]:
+def _build_row(final_state: AgentState, coverage_report: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    coverage_report = coverage_report or {}
     input_tokens = final_state.get("input_tokens", {})
     output_tokens = final_state.get("output_tokens", {})
     line_coverage = coverage_report.get("line_coverage", {})
@@ -177,21 +180,23 @@ def create_results_dir(results_folder: str) -> Path:
 
 def append_single_run_results(
     final_state: AgentState,
-    coverage_report: Dict[str, Any],
+    coverage_report: Optional[Dict[str, Any]],
     results_folder: str,
     specification_path: Optional[Path] = None,
     base_dir: Optional[Path] = None,
     hidden_test: Optional[str] = None,
+    save_generated_test_artifacts: bool = True,
 ) -> Path:
     """
     Append a pipeline run summary to a CSV file under experiments/results/<folder>.
 
     Args:
         final_state: Final pipeline state produced by the graph.
-        coverage_report: Coverage report dict from generate_coverage_report().
+        coverage_report: Coverage report dict from generate_coverage_report(), if run.
         results_folder: Folder name for this experiment's results.
         specification_path: Optional path to the specification file.
         hidden_test: Optional HumanEval hidden test code to snapshot.
+        save_generated_test_artifacts: Whether to snapshot generated tests/specifications.
 
     Returns:
         The per-run directory containing snapshots and JSON artifacts.
@@ -210,36 +215,36 @@ def append_single_run_results(
         instance_dir = experiment_files_dir / f"instance_{instance_id}"
     instance_dir.mkdir(parents=True, exist_ok=False)
 
-    test_file_value = coverage_report.get("test_file")
-    patch_file_value = coverage_report.get("patch_file")
-    if not test_file_value:
-        raise ValueError("coverage_report is missing 'test_file'.")
-    if not patch_file_value:
-        raise ValueError("coverage_report is missing 'patch_file'.")
-
     base_dir = Path(__file__).resolve().parents[1]
-    test_path = _resolve_path(str(test_file_value), base_dir)
+    coverage_report = coverage_report or {}
+    patch_file_value = coverage_report.get("patch_file", DEFAULT_PROGRAM_FILE)
     patch_path = _resolve_path(str(patch_file_value), base_dir)
+
+    test_path = None
+    if save_generated_test_artifacts:
+        test_file_value = coverage_report.get("test_file", DEFAULT_TEST_FILE)
+        test_path = _resolve_path(str(test_file_value), base_dir)
+
     if specification_path is None:
         specification_path = DEFAULT_SPECIFICATION_FILE
-    spec_path = _resolve_path(str(specification_path), base_dir)
+    spec_path = _resolve_path(str(specification_path), base_dir) if save_generated_test_artifacts else None
 
-    if not test_path.exists():
+    if test_path is not None and not test_path.exists():
         raise FileNotFoundError(f"Test file not found: {test_path}")
     if not patch_path.exists():
         raise FileNotFoundError(f"Patch file not found: {patch_path}")
-    if not spec_path.exists():
+    if spec_path is not None and not spec_path.exists():
         raise FileNotFoundError(f"Specification file not found: {spec_path}")
 
-    test_snapshot = instance_dir / test_path.name
     patch_snapshot = instance_dir / patch_path.name
-    spec_snapshot = instance_dir / spec_path.name
     task_snapshot = instance_dir / "task.txt"
     hidden_test_snapshot = instance_dir / "hidden_test.py"
 
-    _write_snapshot(_read_text(test_path), test_snapshot)
+    if test_path is not None:
+        _write_snapshot(_read_text(test_path), instance_dir / test_path.name)
     _write_snapshot(_read_text(patch_path), patch_snapshot)
-    _write_snapshot(_read_text(spec_path), spec_snapshot)
+    if spec_path is not None:
+        _write_snapshot(_read_text(spec_path), instance_dir / spec_path.name)
     _write_snapshot(final_state.get("program_description", ""), task_snapshot)
     if hidden_test is not None:
         _write_snapshot(hidden_test, hidden_test_snapshot)
@@ -248,7 +253,8 @@ def append_single_run_results(
     coverage_report_path = instance_dir / "coverage_report.json"
     run_summary_path = instance_dir / "run_summary.json"
     _write_json(_build_agent_outputs(final_state), agent_outputs_path)
-    _write_json(coverage_report, coverage_report_path)
+    if coverage_report:
+        _write_json(coverage_report, coverage_report_path)
 
     row = _build_row(final_state, coverage_report)
     row["instance_id"] = instance_id

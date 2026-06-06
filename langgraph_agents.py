@@ -41,6 +41,14 @@ def choose_scenario(scenario: str) -> tuple[StateGraph, AgentState]:
             raise ValueError(f"Unknown scenario: {scenario}")
 
 
+def _has_generated_test_artifacts(state: AgentState | None) -> bool:
+    return bool(
+        state
+        and state.get("tests")
+        and state.get("specifications")
+    )
+
+
 def run_problem(args, graph: StateGraph, initial_state: AgentState, description_file=None) -> dict:
 
     results_folder_name = None
@@ -67,9 +75,20 @@ def run_problem(args, graph: StateGraph, initial_state: AgentState, description_
 
     print(f"Input tokens: {final_state['input_tokens']}")
     print(f"Output tokens: {final_state['output_tokens']}")
-    report = generate_coverage_report(verbose=True)
+    save_generated_test_artifacts = _has_generated_test_artifacts(final_state)
+    report = None
+    if save_generated_test_artifacts:
+        report = generate_coverage_report(verbose=True)
+    else:
+        print("Coverage report skipped: this scenario did not generate tests/specifications.")
+
     if results_folder_name:
-        append_single_run_results(final_state=final_state, coverage_report=report, results_folder=results_folder_name)
+        append_single_run_results(
+            final_state=final_state,
+            coverage_report=report,
+            results_folder=results_folder_name,
+            save_generated_test_artifacts=save_generated_test_artifacts,
+        )
 
 
 def choose_sample_run(args):
