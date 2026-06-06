@@ -146,7 +146,6 @@ def run_on_problems(
         print(f"{'#'*60}")
 
         result, agent_state = run_single(problem, hidden_tests[pid], graph)
-        results.append(result)
 
         status = "PASS ✓" if result["humaneval_pass"] else "FAIL ✗"
         print(f"\n  Result: {status}  |  iterations: {result['iterations']}"
@@ -161,6 +160,9 @@ def run_on_problems(
         report = None
         report = generate_coverage_report(verbose=True)
 
+        result["line_coverage_percent"] = report['line_coverage']['percent']
+        result["branch_coverage_percent"] = report['branch_coverage']['percent']
+        results.append(result)
 
         if results_folder:
             append_single_run_results(

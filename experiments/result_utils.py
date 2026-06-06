@@ -10,6 +10,7 @@ from utils.state import AgentState
 DEFAULT_SPECIFICATION_FILE = Path("outputs/specifications.txt")
 DEFAULT_RESULTS_CSV = "results.csv"
 EXPERIMENT_FILES_DIR = "experiment_files"
+AGENTS = ("a11", "a12", "a2", "a3", "a4")
 
 
 def _normalize_folder_name(folder_name: str) -> str:
@@ -26,6 +27,25 @@ def _safe_int(value: Any) -> int:
 
 def _sum_tokens(tokens: Dict[str, Any]) -> int:
     return sum(_safe_int(value) for value in tokens.values())
+
+
+def _build_token_summary_from_results(results: list[dict]) -> Dict[str, Any]:
+    by_agent = {}
+    for agent in AGENTS:
+        input_total = sum(_safe_int(r.get("input_tokens", {}).get(agent)) for r in results)
+        output_total = sum(_safe_int(r.get("output_tokens", {}).get(agent)) for r in results)
+        by_agent[agent] = {
+            "input": input_total,
+            "output": output_total,
+        }
+
+    total_input = sum(tokens["input"] for tokens in by_agent.values())
+    total_output = sum(tokens["output"] for tokens in by_agent.values())
+    return {
+        "input": total_input,
+        "output": total_output,
+        "by_agent": by_agent,
+    }
 
 
 def _read_existing_header(csv_path: Path) -> Optional[list[str]]:
@@ -120,7 +140,7 @@ def _build_row(final_state: AgentState, coverage_report: Dict[str, Any]) -> Dict
     row["total_input_tokens"] = _sum_tokens(input_tokens)
     row["total_output_tokens"] = _sum_tokens(output_tokens)
 
-    for agent in ("a11", "a12", "a2", "a3", "a4"):
+    for agent in AGENTS:
         row[f"{agent}_input_tokens"] = _safe_int(input_tokens.get(agent, 0))
         row[f"{agent}_output_tokens"] = _safe_int(output_tokens.get(agent, 0))
 
@@ -227,28 +247,7 @@ def append_single_run_results(
 
     row = _build_row(final_state, coverage_report)
     row["instance_id"] = instance_id
-    row["instance_dir"] = str(Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}")
-    row["test_file_snapshot"] = str(
-        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / test_path.name
-    )
-    row["patch_file_snapshot"] = str(
-        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / patch_path.name
-    )
-    row["specification_snapshot"] = str(
-        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / spec_path.name
-    )
-    row["task_snapshot"] = str(
-        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / task_snapshot.name
-    )
-    row["agent_outputs_snapshot"] = str(
-        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / agent_outputs_path.name
-    )
-    row["coverage_report_snapshot"] = str(
-        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / coverage_report_path.name
-    )
-    row["run_summary_snapshot"] = str(
-        Path(EXPERIMENT_FILES_DIR) / f"instance_{instance_id}" / run_summary_path.name
-    )
+
     _write_json(row, run_summary_path)
 
     header = _read_existing_header(csv_path)
@@ -263,14 +262,21 @@ def append_single_run_results(
 
     return instance_dir
 
-def append_experiments_results(results: dict, results_folder: str, timestamp: str) -> None:
+def append_experiments_results(results: list[dict], results_folder: str, timestamp: str) -> None:
     results_dir = create_results_dir(results_folder)
+    total = len(results)
+    passed = sum(1 for r in results if r["humaneval_pass"])
+    avg_line_coverage = sum(r.get("line_coverage_percent", 0) for r in results) / total if total else 0
+    avg_branch_coverage = sum(r.get("branch_coverage_percent", 0) for r in results) / total if total else 0
+    avg_iters = sum(r["iterations"] for r in results) / total if total else 0
     summary = {
         "timestamp": timestamp,
-        "total":     len(results),
-        "passed":    sum(1 for r in results if r["humaneval_pass"]),
-        "pass_rate": sum(1 for r in results if r["humaneval_pass"]) / len(results),
-        "avg_iters": sum(r["iterations"] for r in results) / len(results),
-        "results":   results,
+        "total": total,
+        "passed": passed,
+        "pass_rate": passed / total if total else 0,
+        "avg_iters": avg_iters,
+        "tokens": _build_token_summary_from_results(results),
+        "avg_line_coverage": avg_line_coverage,
+        "avg_branch_coverage": avg_branch_coverage,
     }
     _write_json(summary, results_dir / f"summary_{timestamp}.json")
