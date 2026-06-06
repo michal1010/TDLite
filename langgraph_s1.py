@@ -57,6 +57,25 @@ def build_graph() -> StateGraph:
 
     return graph.compile()
 
+def create_initial_state(program_description: str) -> AgentState:
+    return {
+        "messages": [],
+        "program_description": program_description,
+        "tests": "",
+        "code": "",
+        "compile_output": "",
+        "tests_passed": False,
+        "test_outputs": [],
+        "debug_reports": [],
+        "ever_passed_tests": [],
+        "next_agent": "a2",
+        "iteration": 0,
+        "compile_iteration": 0,
+        "specifications": "",
+        "input_tokens": {},
+        "output_tokens": {},
+        "debug_has_issues": True
+    }
 
 def main() -> AgentState:
     args = parse_args()
@@ -81,24 +100,7 @@ def main() -> AgentState:
 
     app = build_graph()
 
-    initial_state: AgentState = {
-        "messages": [],
-        "program_description": program_description,
-        "tests": "",
-        "code": "",
-        "compile_output": "",
-        "tests_passed": False,
-        "test_outputs": [],
-        "debug_reports": [],
-        "ever_passed_tests": [],
-        "next_agent": "a2",
-        "iteration": 0,
-        "compile_iteration": 0,
-        "specifications": "",
-        "input_tokens": {},
-        "output_tokens": {},
-        "debug_has_issues": True
-    }
+    initial_state = create_initial_state(program_description)
 
     print("\n" + "=" * 60)
     print("  LangGraph Non-TDD No-Iteration Pipeline - Starting")

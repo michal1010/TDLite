@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from experiments.test_metrics import generate_coverage_report
 from humaneval_loader import get_problems, get_hidden_tests
-import langgraph_agents
+import langgraph_s4
 import langgraph_s1
 import langgraph_s2
 from utils.state import AgentState
@@ -206,12 +206,33 @@ def choose_scenario(scenario: str):
     elif scenario == "s3d":
         return ValueError("Scenario s3 is not implemented yet")
     elif scenario == 's4':
-        return langgraph_agents.build_graph()
+        return langgraph_s4.build_graph()
     else:
         raise ValueError(f"Unknown scenario: {scenario}")
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
+def run_experiments_humaneval(args):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ids         = args.ids if args.ids else None
+    range_start = args.range[0] if args.range else None
+    range_end   = args.range[1] if args.range else None
+
+    print("Loading HumanEval dataset...")
+    problems     = get_problems(ids=ids, range_start=range_start, range_end=range_end)
+    hidden_tests = get_hidden_tests(ids=ids, range_start=range_start, range_end=range_end)
+
+    if not problems:
+        print("No matching problems found. HumanEval has IDs 0–163.")
+        sys.exit(1)
+
+    graph = choose_scenario(args.scenario)
+
+    results = run_on_problems(problems, hidden_tests, graph, args.store_results)
+
+    if args.store_results:
+        append_experiments_results(results, args.store_results, timestamp)
+        print_summary(results, args.store_results)
 
 def main() -> None:
     parser = argparse.ArgumentParser(
