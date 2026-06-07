@@ -12,30 +12,31 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
     print(f"\n A3 received compile error, preparing to fix it:")
     llm = get_llm()
 
-    prompt = f"""
-        You are Agent A3, the compilation-fix agent.
+    system_prompt = """You are Agent A3, the compilation-fix agent.
 
-        The current code in generated_program.py does not compile.
-        Fix only what is needed so that it becomes valid Python.
+    The current code in generated_program.py does not compile.
+    Fix only what is needed so that it becomes valid Python.
 
-        Rules:
-        - Return only Python code.
-        - Do not include markdown fences or explanations.
-        - Do not include ```python ```fences, just return the code.
-        - Keep the intended behavior from the program description.
+    Rules:
+    - Return only Python code.
+    - Do not include markdown fences or explanations.
+    - Do not include ```python ```fences, just return the code.
+    - Keep the intended behavior from the program description."""
 
-        Program description:
-        {state["program_description"]}
+    human_prompt = f"""Program description:
+{state["program_description"]}
 
-        Current code:
-        {state["code"]}
+Current code:
+{state["code"]}
 
-        Compilation error:
-        {state["compile_output"]}
-        """.strip()
+Compilation error:
+{state["compile_output"]}"""
 
     llm = llm.with_structured_output(schema=Response, include_raw=True)
-    response = llm.invoke([HumanMessage(content=prompt)])
+    response = llm.invoke([
+        {"type": "system", "content": system_prompt},
+        HumanMessage(content=human_prompt)
+    ])
     code = response["parsed"].content
     update_token_state(state, response["raw"], "a3")
     save_text(PROGRAM_FILE, code)
@@ -47,6 +48,7 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
     return {
         "messages": [code],
         "program_description": state["program_description"],
+        "specifications": state["specifications"],
         "tests": state["tests"],
         "code": code,
         "compile_output": "",
@@ -59,4 +61,5 @@ def agent_a3_patch_revision(state: AgentState) -> AgentState:
         "input_tokens": state["input_tokens"],
         "output_tokens": state["output_tokens"],
         "compile_iteration": state["compile_iteration"] + 1,
+        "debug_has_issues": state["debug_has_issues"]
     }

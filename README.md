@@ -16,13 +16,11 @@ work together:
 The loop stops when all tests pass or when the maximum number of iterations is
 reached.
 
-## Project files
+## Project Folders
 
-- `langgraph_agents.py` - the TDD pipeline
-- `program_description_easy.txt` - an easier example problem
-- `program_description_hard.txt` - a harder example problem
-- `generated_program.py` - created by the pipeline
-- `test_generated_program.py` - created by the pipeline
+- `workflows` - Contains the langgraph execution pipelines of the four workflow we test (TDD, TDD+REF, REF, none).
+- `outputs` - Contains the outputs of the program. Namely, the generated tests and the generated program files.
+
 
 ## Requirements
 
@@ -76,7 +74,7 @@ curl http://localhost:11434/api/tags
 
 You can run the full pipeline, which:
 
-1. Deletes `test_generated_program.py` and `generated_program.py`.
+1. Deletes `generated_tests.py` and `generated_program.py`.
 2. Runs `langgraph_agents.py` with some description.
 
 Make sure you have a virtual environment named `.venv` setup:
@@ -125,7 +123,7 @@ Useful flags:
 During a run, the pipeline writes:
 
 ```text
-test_generated_program.py
+generated_tests.py
 generated_program.py
 ```
 

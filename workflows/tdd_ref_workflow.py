@@ -1,14 +1,32 @@
+"""
+This module defines the TDD workflow using LangGraph. The workflow consists of the following steps:
+1. Agent A11 generates structured natural language specifications from the program description.
+2. Agent A12 generates tests based on the specifications.
+3. The generated tests are checked for syntax errors. If there are syntax errors, the flow goes back to A12 for regeneration. 
+    If there are no syntax errors, the flow proceeds to A2.
+4. Agent A2 generates code based on the specifications and tests.
+5. The generated code is compiled. If there are compilation errors, the flow goes to A3 for patch revision and then back to compilation.
+    If there are no compilation errors, the flow proceeds to run tests.
+6. The generated code is tested against the generated tests. If the tests do not pass, the flow goes to A4 for debugging and then back to A2 for patch creation.
+    If the tests pass, the workflow ends successfully.
+    
+The workflow also includes iteration limits to prevent infinite loops, and it can be run in a debug mode with more verbose output and no retries.
+"""
+
+
 from __future__ import annotations
 
 from pathlib import Path
 from random import randint
 import shutil
 from langgraph.graph import StateGraph
-from datasets import load_dataset
 from experiments.result_utils import append_single_run_results
 from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE
 from experiments.test_metrics import generate_coverage_report
-from utils.io_utils import parse_args, read_program_description
+from utils.io_utils import parse_args, read_program_description, get_mbpp_prompts, get_humaneval_prompts
+from nodes.compile_check import compile_check
+from nodes.test_syntax_check import test_syntax_check
+from nodes.run_tests import run_tests
 from utils.state import AgentState
 import scenarios.langgraph_s4 as langgraph_s4
 import scenarios.langgraph_s1 as langgraph_s1
@@ -18,16 +36,6 @@ from experiments.run_humaneval import run_experiments_humaneval
 OUTPUTS_DIR = Path(__file__).resolve().parent / "outputs"
 
 
-def get_humaneval_prompts() -> list[str]:
-    ds = load_dataset("openai/openai_humaneval")
-    samples = ds["test"][:10]
-    return samples["prompt"]
-
-
-def get_mbpp_prompts() -> list[str]:
-    ds = load_dataset("google-research-datasets/mbpp", "full")
-    samples = ds["test"][:10]
-    return samples["text"]
 
 
 def choose_scenario(scenario: str) -> tuple[StateGraph, AgentState]:

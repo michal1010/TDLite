@@ -1,10 +1,14 @@
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DEFAULT_PROGRAM_DESCRIPTION_FILE = Path("program_description_easy.txt")
 PROGRAM_FILE = Path("outputs/generated_program.py")
-TEST_FILE    = Path("outputs/test_generated_program.py")
+TEST_FILE    = Path("outputs/generated_tests.py")
 
-MODEL_NAME    = "qwen2.5-coder:7b"
+MODEL_NAME    = os.getenv("MODEL", "qwen2.5-coder:7b")
 NUM_CTX       = 8192
 TEMP_GENERATE = 0.2   # A1, A2 — slightly exploratory
 TEMP_DEBUG    = 0.2   # A4    — conservative, analytical
