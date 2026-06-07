@@ -18,6 +18,10 @@ def test_syntax_check(state: AgentState) -> AgentState:
     if not tests_content and TEST_FILE.exists():
         tests_content = TEST_FILE.read_text(encoding="utf-8")
 
+    if 'import unittest' not in tests_content and 'from unittest import' not in tests_content:
+        tests_content = f"import unittest\n\n{tests_content}"
+        TEST_FILE.write_text(tests_content, encoding="utf-8")
+
     try:
         py_compile.compile(str(TEST_FILE), doraise=True)
         syntax_ok = True
@@ -27,7 +31,7 @@ def test_syntax_check(state: AgentState) -> AgentState:
         syntax_ok = False
         test_output = str(exc)
         print("Compilation error in generated tests:")
-        
+        print(test_output)
     print(test_output)
     next_agent = "a2"
     compile_iter = state["compile_iteration"] 
@@ -58,4 +62,6 @@ def test_syntax_check(state: AgentState) -> AgentState:
         "input_tokens": state["input_tokens"],
         "output_tokens": state["output_tokens"],
         "compile_iteration": compile_iter,
+        "debug_has_issues": state["debug_has_issues"],
+        "debug_mode": state["debug_mode"],
     }

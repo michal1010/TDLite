@@ -23,14 +23,15 @@ from langgraph.graph import StateGraph
 from experiments.result_utils import append_single_run_results
 from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE
 from experiments.test_metrics import generate_coverage_report
-from utils.io_utils import parse_args, read_program_description, get_mbpp_prompts, get_humaneval_prompts
+from utils.io_utils import parse_args, read_program_description, get_mbpp_prompts, get_humaneval_prompts, print_section
 from nodes.compile_check import compile_check
 from nodes.test_syntax_check import test_syntax_check
 from nodes.run_tests import run_tests
 from utils.state import AgentState
-import scenarios.langgraph_s4 as langgraph_s4
-import scenarios.langgraph_s1 as langgraph_s1
-import scenarios.langgraph_s2 as langgraph_s2
+import scenarios.tdd_ref as tdd_ref
+import scenarios.base as base
+import scenarios.ref as ref
+import scenarios.tdd as tdd
 from experiments.run_humaneval import run_experiments_humaneval
 
 OUTPUTS_DIR = Path(__file__).resolve().parent / "outputs"
@@ -40,14 +41,14 @@ OUTPUTS_DIR = Path(__file__).resolve().parent / "outputs"
 
 def choose_scenario(scenario: str) -> tuple[StateGraph, AgentState]:
     match scenario:
-        case "s1":
-            return langgraph_s1.build_graph(), langgraph_s1.create_initial_state()
-        case "s2":
-            return langgraph_s2.build_graph(), langgraph_s2.create_initial_state()
-        case "s3":
-            return ValueError("Scenario s3 is not implemented yet")
-        case "s4":
-            return langgraph_s4.build_graph(), langgraph_s4.create_initial_state()
+        case "default":
+            return base.build_graph(), base.create_initial_state()
+        case "REF":
+            return ref.build_graph(), ref.create_initial_state()
+        case "TDD":
+            return tdd.build_graph(), tdd.create_initial_state()
+        case "TDD_REF":
+            return tdd_ref.build_graph(), tdd_ref.create_initial_state()
         case _:
             raise ValueError(f"Unknown scenario: {scenario}")
 
@@ -77,11 +78,13 @@ def run_problem(args, graph: StateGraph, initial_state: AgentState, description_
         results_folder_name = args.store_results
         print(f"Results will be stored in folder: {results_folder_name}")
 
-    print("\n" + "=" * 60)
-    print("  LangGraph TDD Pipeline - Starting")
-    print(f"  Description file: {description_file if description_file else 'None, using dataset example'}")
-    print(f'  Scenario: {args.scenario}')
-    print("=" * 60)
+    title = (
+        f"LangGraph TDD Pipeline - Starting\n"
+        f"Description file: {description_file if description_file else 'None, using dataset example'}"
+        f"Scenario: {args.scenario}"
+    )
+    print_section(title)
+
 
     clear_outputs_dir()
     final_state = graph.invoke(initial_state)
@@ -132,18 +135,18 @@ def choose_sample_run(args):
 
 
 
-def main() -> AgentState:
+def main():
     args = parse_args()
     program_description = ""
     description_file = None
 
     graph, initial_state = choose_scenario(args.scenario)
-
+    print(f"Sample run: {args.sample_run}")
     if args.debug:
         import utils.config as _cfg
         _cfg.MAX_ITERATIONS = 1
         print("[DEBUG MODE] max iterations set to 1")
-    if args.sample_run:
+    if args.sample_run == False:
         program_description = choose_sample_run(args)
         initial_state["program_description"] = program_description
         run_problem(args, graph, initial_state, description_file)

@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any
 from experiments.test_metrics import generate_coverage_report
 from experiments.humaneval_loader import get_problems, get_hidden_tests
-import scenarios.langgraph_s4 as langgraph_s4
-import scenarios.langgraph_s1 as langgraph_s1
-import scenarios.langgraph_s2 as langgraph_s2
+import scenarios.tdd_ref as tdd_ref
+import scenarios.base as base
+import scenarios.ref as ref
 from utils.state import AgentState
 from experiments.result_utils import (
     append_experiments_results,
@@ -200,13 +200,13 @@ def print_summary(results: list[dict], run_dir: Path, has_tests: bool) -> None:
 
 def choose_scenario(scenario: str):
     if scenario == "s1":
-        return langgraph_s1.build_graph()
+        return base.build_graph()
     elif scenario == "s2":
-        return langgraph_s2.build_graph()
+        return ref.build_graph()
     elif scenario == "s3d":
         return ValueError("Scenario s3 is not implemented yet")
     elif scenario == 's4':
-        return langgraph_s4.build_graph()
+        return tdd_ref.build_graph()
     else:
         raise ValueError(f"Unknown scenario: {scenario}")
 

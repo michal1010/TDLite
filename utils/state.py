@@ -31,3 +31,6 @@ class AgentState(TypedDict):
     output_tokens: Dict[str, int]
     compile_iteration: int
     debug_has_issues: bool
+    debug_mode: bool
+
+

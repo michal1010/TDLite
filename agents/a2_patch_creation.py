@@ -1,7 +1,7 @@
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from utils.config import PROGRAM_FILE, TEMP_GENERATE
-from utils.io_utils import save_text
+from utils.io_utils import print_section, save_text
 from utils.llm import get_llm
 from utils.schemas import Response
 from utils.state import AgentState, update_token_state
@@ -129,10 +129,8 @@ def agent_a2_patch_creation(state: AgentState) -> dict:
     Output (to state):   code, PROGRAM_FILE written to disk,
                          iteration incremented
     """
-    print(f"\n{'='*60}")
-    print(f"[A2 - Patch Creation] attempt {state['iteration'] + 1}")
-    print("="*60)
-
+    print_section(f"[A2 - Patch Creation] attempt {state['iteration'] + 1}")
+    
     llm = get_llm(temperature=TEMP_GENERATE).with_structured_output(schema=Response, include_raw=True)
     system_prompt, human_prompt = _build_prompt(state)
     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=human_prompt)])
