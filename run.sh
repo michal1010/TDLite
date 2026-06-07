@@ -15,11 +15,11 @@ else
     exit 1
 fi
 
-rm -f generated_program.py test_generated_program.py
+rm -f generated_program.py generated_tests.py
 
 DESCRIPTION_ARG=()
 if [ $# -ge 1 ]; then
     DESCRIPTION_ARG=(--file "$1")
 fi
 
-"$PYTHON_EXEC" langgraph_agents.py "${DESCRIPTION_ARG[@]}"
+"$PYTHON_EXEC" tdd_ref_workflow.py "${DESCRIPTION_ARG[@]}"

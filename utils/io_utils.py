@@ -1,9 +1,15 @@
 import argparse
 from pathlib import Path
+from datasets import load_dataset
 
 from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE
 
 SUPPORTED_DATASETS = ("HumanEval", "MBPP")
+SUPPORTED_WORKFLOWS = ("TDD", "TDD_REF", "REF", "default")
+
+
+def _normalize_optional_arg(value: str | None, default: str) -> str:
+    return default if value in (None, "") else value
 
 
 def read_program_description(path: Path) -> str:
@@ -16,19 +22,34 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the LangGraph TDD pipeline.")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
-        "--file",
+        "-f", "--file",
         nargs="?",
         default=None,
         help="program description file to use",
     )
     group.add_argument(
-        "--dataset",
-        choices=SUPPORTED_DATASETS,
+        "-d", "--dataset",
+        nargs="?",
         default="MBPP",
         help="dataset to use (HumanEval or MBPP)",
     )
+    parser.add_argument(
+        "-w", "--workflow",
+        nargs="?",
+        default="default",
+        help="workflow to run (TDD, TDD_REF, REF, or default)",
+    )
+    
+  
 
-    # Implement the ability to specify if we are in debug mode or not
+    parser.add_argument(
+        "-s", "--store_results",
+        nargs="?",
+        default=None,
+        help="defines folder to store experiment results in, implicitly enables results storage",
+    )
+
+      # Implement the ability to specify if we are in debug mode or not
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -41,35 +62,38 @@ def parse_args() -> argparse.Namespace:
         help="whether to run random experiment or a problem from the given description",
     )
 
-    parser.add_argument(
-        "--store_results",
-        nargs="?",
-        const="results",
-        default=None,
-        help="defines folder to store experiment results in, implicitly enables results storage",
-    )
+    args = parser.parse_args()
+    args.dataset = _normalize_optional_arg(args.dataset, "MBPP")
+    args.workflow = _normalize_optional_arg(args.workflow, "default")
 
-    group = parser.add_mutually_exclusive_group(required=False)
+    if args.dataset not in SUPPORTED_DATASETS:
+        parser.error(
+            f"argument --dataset: invalid choice: {args.dataset!r} (choose from {', '.join(SUPPORTED_DATASETS)})"
+        )
+    if args.workflow not in SUPPORTED_WORKFLOWS:
+        parser.error(
+            f"argument --workflow: invalid choice: {args.workflow!r} (choose from {', '.join(SUPPORTED_WORKFLOWS)})"
+        )
 
-    group.add_argument(
-        "--ids", nargs="+", type=int, metavar="ID",
-        help="Specific problem IDs  e.g. --ids 0 5 12 47",
-    )
-
-    group.add_argument(
-        "--range", nargs=2, type=int, metavar=("START", "END"),
-        help="Inclusive ID range    e.g. --range 0 9",
-    )
-
-    parser.add_argument(
-        "--scenario",
-        choices=["s1", "s2", "s3", "s4"],
-        required=True,
-        help="Scenario to run: s1, s2, s3, or s4"
-    )
-
-    return parser.parse_args()
+    return args
 
 
 def save_text(path: Path, content: str) -> None:
     path.write_text(content.rstrip() + "\n", encoding="utf-8")
+
+def get_humaneval_prompts() -> list[str]:
+    ds = load_dataset("openai/openai_humaneval")
+    samples = ds["test"][:10]
+    print(samples)
+    return samples["prompt"]
+
+
+def get_mbpp_prompts() -> list[str]:
+    ds = load_dataset("google-research-datasets/mbpp", "full")
+    samples = ds["test"][:10]
+    return samples["text"]
+
+def print_section(title: str) -> None:
+    print(f"\n{'=' * 60}")
+    print(f"{title}")
+    print(f"{'=' * 60}")

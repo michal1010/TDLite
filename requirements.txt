@@ -6,5 +6,7 @@ pydantic>=2
 datasets==2.18.0
 fsspec==2023.10.0
 huggingface_hub>=0.19.4,<1.0
-pyarrow==20.0.0
+pyarrow==24.0.0
+dotenv>=0.9.9
+datasets
 coverage
