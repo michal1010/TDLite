@@ -89,32 +89,36 @@ call .venv/Scripts/activate # Or however you activate a venv on your machine
 pip install -r requirements.txt
 ```
 
-Run the pipeline with the default easy description:
+The current entry point is `langgraph_agents.py`. Choose a scenario with
+`--scenario`, then either run a single sample task with `--sample_run` or a
+HumanEval range with `--range` or `--ids`.
+
+Run one sample task from a file in `inputs/` and store experiment artifacts:
 
 ```bash
-bash run.sh
+python3 langgraph_agents.py --scenario s1 --file input_easy.txt --sample_run --store_results experiment_x
 ```
 
-or with a specific problem description file, for example:
+Run one random sample task from the default dataset and store artifacts:
 
 ```bash
-bash run.sh program_description_hard.txt
+python3 langgraph_agents.py --scenario s1 --sample_run --store_results experiment_x
 ```
 
-You can also run the python file manually.
-Run the pipeline with the default easy description:
+Run HumanEval problem from 1 to 5 and store artifacts:
 
 ```bash
-python3 langgraph_agents.py
+python3 langgraph_agents.py --scenario s1 --range 1 5 --store_results experiment_x
 ```
 
-Run it with a specific problem description file:
+Useful flags:
 
-```bash
-python3 langgraph_agents.py program_description_hard.txt
-```
-
-The script prints the chosen description file when it starts.
+- `--scenario s1|s2|s4` selects the pipeline graph.
+- `--sample_run` runs one sampled/file-based task instead of HumanEval experiments.
+- `--file <name>` reads a task from `inputs/<name>`.
+- `--range START END` runs an inclusive HumanEval ID range.
+- `--ids ID ...` runs specific HumanEval IDs.
+- `--store_results <folder>` writes artifacts under `experiments/results/<folder>/`.
 
 ## What the program generates
 
