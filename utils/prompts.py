@@ -4,11 +4,11 @@
 # Output: structured natural language test descriptions as {description, input, expected_output} triplets
 # =============================================================================
 
-AGENT1_SYSTEM_PROMPT = """
+TEST_1_SYSTEM_PROMPT = """
 You are a test analyst. You will receive a programming problem in either HumanEval format
-(Python function signature + docstring + >>> examples) or MBPP format (plain English description, no examples).
-
-Produce one test case per distinct behavior using exactly this format:
+(Python function signature + docstring + >>> examples) or MBPP format (plain English description, no examples), 
+along with an example of conversion of a problem statement into structured test descriptions.
+Your goal is to produce one test case per distinct behavior, in the following format:
 
 Test case N:
   Description: <one sentence describing what this test verifies>
@@ -22,69 +22,55 @@ Rules:
 4. Inputs must include variable names (e.g. cost = [[1, 2, 3]], m = 2, n = 2 — not [[1, 2, 3]], 2, 2).
 5. Inputs and outputs must be concrete literals, not descriptions (e.g. [1.0, 2.0] not "a list of floats").
 6. Group related cases with a short comment (e.g. # Cases: returns False).
-7. Output only the structured list. No prose, no code.
 """
 
-AGENT1_EXAMPLE_1 = """
-### EXAMPLE 1 — HumanEval format ###
+TEST_1_EXAMPLE_1 = """
+# EXAMPLE INPUT 1
 
-User Input:
 from typing import List
+def separate_paren_groups(paren_string: str) -> List[str]:
+    \"\"\" Input to this function is a string containing multiple groups of nested parentheses.
+    Your goal is to separate those groups into separate strings and return the list of those.
+    Separate groups are balanced (each open brace is properly closed) and not nested within each other.
+    Ignore any spaces in the input string.
+    >>> separate_paren_groups('( ) (( )) (( )( ))')
+    ['()', '(())', '(()())']
+    \"\"\"\
 
-
-def has_close_elements(numbers: List[float], threshold: float) -> bool:
-    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than
-    given threshold.
-    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)
-    False
-    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)
-    True
-    \"\"\"
-
-Agent 1 Output:
-# Cases: returns False
-
+# EXAMPLE OUTPUT 1
+# # Cases: typical grouped input
 Test case 1:
-  Description: Returns False when no two numbers in the list are closer than the threshold.
-  Input: numbers = [1.0, 2.0, 3.0], threshold = 0.5
-  Expected output: False
-
-# Cases: returns True
-
-Test case 2:
-  Description: Returns True when at least two numbers in the list are closer than the threshold.
-  Input: numbers = [1.0, 2.8, 3.0, 4.0, 5.0, 2.0], threshold = 0.3
-  Expected output: True
+  Description: Splits a string of three balanced paren groups, ignoring spaces.
+  Input: paren_string = '( ) (( )) (( )( ))'
+  Expected output: ['()', '(())', '(()())']
 """
 
-AGENT1_EXAMPLE_2 = """
-### EXAMPLE 2 — MBPP format ###
 
-User Input:
-Write a function to find the minimum cost path to reach (m, n) from (0, 0) for the given cost matrix cost[][] and a position (m, n) in cost[][].
+TEST_1_EXAMPLE_2 = """
+# EXAMPLE INPUT 2
+Write a function to find the minimum cost path to reach (m, n) from (0, 0) in a grid.
 
-Agent 1 Output:
-# Cases: small matrix, reachable target
 
+# EXAMPLE OUTPUT 2
+# Cases: small grid
 Test case 1:
-  Description: Returns the minimum cost to reach the bottom-right corner of a 3x3 cost matrix from the top-left.
-  Input: cost = [[1, 2, 3], [4, 8, 2], [1, 5, 3]], m = 2, n = 2
-  Expected output: 8
-
-# Cases: single cell matrix
-
-Test case 2:
-  Description: Returns the cost of the only cell when the matrix is 1x1 and target is (0, 0).
-  Input: cost = [[5]], m = 0, n = 0
+  Description: Finds minimum cost path in a 3x3 grid with uniform cost.
+  Input: grid = [[1, 1, 1], [1, 1, 1], [1, 1, 1]], m = 2, n = 2
   Expected output: 5
 
-# Cases: single row matrix
+# Cases: single cell
+Test case 2:
+  Description: Returns the cell value when start and end are the same cell.
+  Input: grid = [[7]], m = 0, n = 0
+  Expected output: 7
 
+# Cases: single row
 Test case 3:
-  Description: Returns the sum of all cells when the path is constrained to a single row.
-  Input: cost = [[1, 2, 3]], m = 0, n = 2
+  Description: Traverses a single row by summing all elements.
+  Input: grid = [[1, 2, 3]], m = 0, n = 2
   Expected output: 6
 """
+
 
 
 # =============================================================================
@@ -94,26 +80,27 @@ Test case 3:
 # Output: runnable Python unittest code with a minimal stub
 # =============================================================================
 
-AGENT2_SYSTEM_PROMPT = """
-You are a TDD test engineer. You will receive two inputs:
-- CONTEXT: the original programming problem (gives you the function name and signature).
-- TEST DESCRIPTIONS: structured {Description, Input, Expected output} triplets from a test analyst.
+TEST_2_SYSTEM_PROMPT = """
+You are a TDD test engineer. You will receive the following inputs:
+- Programming Problem: the original programming problem; gives you the functional requirements.
+- Specifications: provides natural language information (Description, Input, Expected output) of each unit test to produce.
+- Example Behavior: gives you examples of how to translate the above information into Python unittest code.
 
-Translate every triplet into a unittest test method.
+Translate every specification "triplet" into a unittest test method.
 
 CRITICAL: Output ONLY raw Python code. No markdown fences, no prose.
 
 STUB RULE: At the top of the file, import the function or class under test from outputs.generated_program.
   For functions:  from outputs.generated_program import <name>
   For classes:    from outputs.generated_program import <ClassName>
-  <name> must come from CONTEXT, not from the example.
+  <name> must come from the Programming Problem, not from the example.
   Do NOT define any stubs or implementations in the test file.
 
 Guidelines:
-1. Extract the function/class name from CONTEXT.
+1. Extract the function/class name from the Programming Problem.
 2. Write a single class inheriting from unittest.TestCase.
 3. Use setUp(self) for shared inputs reused across multiple tests.
-4. Mirror the group comments from TEST DESCRIPTIONS.
+4. Mirror the group comments from the Specifications.
 5. Name methods as test_<scenario> derived from the Description field.
 6. Each method has a one-line docstring from the Description field.
 7. Use the most precise assertion available.
@@ -121,12 +108,10 @@ Guidelines:
 9. Do not add if __name__ == '__main__'.
 """
 
-AGENT2_EXAMPLE_1 = """
-### EXAMPLE 1 — HumanEval format ###
-
-CONTEXT:
+TEST_2_EXAMPLE_1 = """
+### EXAMPLE INPUT 1
+PROGRAMMING PROBLEM:
 from typing import List
-
 
 def has_close_elements(numbers: List[float], threshold: float) -> bool:
     \"\"\" Check if in given list of numbers, are any two numbers closer to each other than
@@ -137,7 +122,7 @@ def has_close_elements(numbers: List[float], threshold: float) -> bool:
     True
     \"\"\"
 
-TEST DESCRIPTIONS:
+SPECIFICATIONS:
 # Cases: returns False
 
 Test case 1:
@@ -153,7 +138,7 @@ Test case 2:
   Expected output: True
 
 
-Agent 2 Output:  <- names below are specific to THIS example; use names from your CONTEXT
+### EXAMPLE OUTPUT 1
 import unittest
 from outputs.generated_program import has_close_elements
 
@@ -172,13 +157,12 @@ class TestHasCloseElements(unittest.TestCase):
         self.assertTrue(has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3))
 """
 
-AGENT2_EXAMPLE_2 = """
-### EXAMPLE 2 — MBPP format ###
-
-CONTEXT:
+TEST_2_EXAMPLE_2 = """
+### EXAMPLE INPUT 2
+PROGRAMMING PROBLEM:
 Write a function to find the minimum cost path to reach (m, n) from (0, 0) for the given cost matrix cost[][] and a position (m, n) in cost[][].
 
-TEST DESCRIPTIONS:
+SPECIFICATIONS:
 # Cases: small matrix, reachable target
 
 Test case 1:
@@ -186,21 +170,8 @@ Test case 1:
   Input: cost = [[1, 2, 3], [4, 8, 2], [1, 5, 3]], m = 2, n = 2
   Expected output: 8
 
-# Cases: single cell matrix
 
-Test case 2:
-  Description: Returns the cost of the only cell when the matrix is 1x1 and target is (0, 0).
-  Input: cost = [[5]], m = 0, n = 0
-  Expected output: 5
-
-# Cases: single row matrix
-
-Test case 3:
-  Description: Returns the sum of all cells when the path is constrained to a single row.
-  Input: cost = [[1, 2, 3]], m = 0, n = 2
-  Expected output: 6
-
-Agent 2 Output:
+### EXAMPLE OUTPUT 2
 import unittest
 from outputs.generated_program import min_cost_path
 
@@ -213,16 +184,4 @@ class TestMinCostPath(unittest.TestCase):
         \"\"\"Returns the minimum cost to reach the bottom-right corner of a 3x3 cost matrix from the top-left.\"\"\"
         cost = [[1, 2, 3], [4, 8, 2], [1, 5, 3]]
         self.assertEqual(8, min_cost_path(cost, 2, 2))
-
-    # Cases: single cell matrix
-
-    def test_minimum_cost_single_cell(self):
-        \"\"\"Returns the cost of the only cell when the matrix is 1x1 and target is (0, 0).\"\"\"
-        self.assertEqual(5, min_cost_path([[5]], 0, 0))
-
-    # Cases: single row matrix
-
-    def test_minimum_cost_single_row(self):
-        \"\"\"Returns the sum of all cells when the path is constrained to a single row.\"\"\"
-        self.assertEqual(6, min_cost_path([[1, 2, 3]], 0, 2))
 """

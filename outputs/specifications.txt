@@ -1,9 +1,29 @@
 Test case 1:
-  Description: Returns False when no two numbers in the list are closer than the threshold.
-  Input: numbers = [1.0, 2.0, 3.0], threshold = 0.5
-  Expected output: False
+  Description: Splits a string of three balanced paren groups, ignoring spaces.
+  Input: paren_string = '( ) (( )) (( )( ))'
+  Expected output: ['()', '(())', '(()())']
 
 Test case 2:
-  Description: Returns True when at least two numbers in the list are closer than the threshold.
-  Input: numbers = [1.0, 2.8, 3.0, 4.0, 5.0, 2.0], threshold = 0.3
-  Expected output: True
+  Description: Finds minimum cost path in a 3x3 grid with uniform cost.
+  Input: grid = [[1, 1, 1], [1, 1, 1], [1, 1, 1]], m = 2, n = 2
+  Expected output: 5
+
+Test case 3:
+  Description: Returns the cell value when start and end are the same cell.
+  Input: grid = [[7]], m = 0, n = 0
+  Expected output: 7
+
+Test case 4:
+  Description: Traverses a single row by summing all elements.
+  Input: grid = [[1, 2, 3]], m = 0, n = 2
+  Expected output: 6
+
+Test case 5:
+  Description: Finds minimum cost path in a 2x2 grid with uniform cost.
+  Input: grid = [[1, 2], [3, 4]], m = 1, n = 1
+  Expected output: 4
+
+Test case 6:
+  Description: Finds minimum cost path in a 3x3 grid with non-uniform cost.
+  Input: grid = [[1, 2, 3], [4, 5, 6], [7, 8, 9]], m = 2, n = 2
+  Expected output: 15
