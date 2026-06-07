@@ -6,34 +6,34 @@ from typing import Literal
 
 from langgraph.graph import END, StateGraph
 
-from datasets import load_dataset
+
 from agents.a2_patch_creation import agent_a2_patch_creation
 from agents.a3_patch_revision import agent_a3_patch_revision
-from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE, MAX_COMPILE_ITERATIONS
-from utils.io_utils import parse_args, read_program_description
+from agents.a4_debug import agent_a4_debug
+from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE, MAX_ITERATIONS, MAX_COMPILE_ITERATIONS
+from utils.io_utils import parse_args, read_program_description, get_mbpp_prompts, get_humaneval_prompts
 from nodes.compile_check import compile_check
 from utils.state import AgentState
 
 
-def get_humaneval_prompts() -> list[str]:
-    ds = load_dataset("openai/openai_humaneval")
-    samples = ds["test"][:10]
-    print(samples)
-    return samples["prompt"]
 
 
-def get_mbpp_prompts() -> list[str]:
-    ds = load_dataset("google-research-datasets/mbpp", "full")
-    samples = ds["test"][:10]
-    return samples["text"]
-
-
-def route_after_compile(state: AgentState) -> Literal["a3", "__end__"]:
+def route_after_compile(state: AgentState) -> Literal["a4", "a3", "__end__"]:
     if state["next_agent"] == "run_tests":  # compile succeeded
-        return "__end__"
+        if state["iteration"] >= MAX_ITERATIONS:
+            return "__end__"
+        return "a4"
     if state["compile_iteration"] >= MAX_COMPILE_ITERATIONS:
         return "__end__"
     return "a3"
+
+
+def route_after_debug(state: AgentState) -> Literal["a2", "__end__"]:
+    if not state["debug_has_issues"]:
+        return "__end__"
+    if state["iteration"] >= MAX_ITERATIONS:
+        return "__end__"
+    return "a2"
 
 
 def build_graph() -> StateGraph:
@@ -42,6 +42,7 @@ def build_graph() -> StateGraph:
     graph.add_node("a2", agent_a2_patch_creation)
     graph.add_node("compile_check", compile_check)
     graph.add_node("a3", agent_a3_patch_revision)
+    graph.add_node("a4", agent_a4_debug)
 
     graph.set_entry_point("a2")
     graph.add_edge("a2", "compile_check")
@@ -49,11 +50,20 @@ def build_graph() -> StateGraph:
         "compile_check",
         route_after_compile,
         {
+            "a4": "a4",
             "a3": "a3",
             "__end__": END,
         },
     )
     graph.add_edge("a3", "compile_check")
+    graph.add_conditional_edges(
+        "a4",
+        route_after_debug,
+        {
+            "a2": "a2",
+            "__end__": END,
+        },
+    )
 
     return graph.compile()
 
@@ -90,6 +100,7 @@ def main() -> AgentState:
         "tests_passed": False,
         "test_outputs": [],
         "debug_reports": [],
+        "debug_has_issues": True,
         "ever_passed_tests": [],
         "next_agent": "a2",
         "iteration": 0,
@@ -97,23 +108,24 @@ def main() -> AgentState:
         "specifications": "",
         "input_tokens": {},
         "output_tokens": {},
-        "debug_has_issues": True
     }
 
     print("\n" + "=" * 60)
-    print("  LangGraph Non-TDD No-Iteration Pipeline - Starting")
+    print("  LangGraph Non-TDD With Self-Iteration Pipeline - Starting")
     print(f"  Description file: {description_file if description_file else 'None, using dataset example'}")
-    print("  A2 code -> compile -> done")
+    print("  A2 code -> compile -> A4 review -> A2 loop")
     print("=" * 60)
 
     final_state = app.invoke(initial_state)
 
     print("\n" + "=" * 60)
-    if final_state["compile_output"] == "Compilation succeeded.":
-        print("  Pipeline finished: code compiled successfully.")
-    else:
+    if not final_state["debug_has_issues"]:
+        print("  Pipeline finished: A4 satisfied with implementation.")
+    elif final_state["compile_output"] != "Compilation succeeded.":
         print("  Pipeline stopped: max compile iterations reached without success.")
-    print(f"  Compile iterations used: {final_state['compile_iteration']}")
+    else:
+        print("  Pipeline stopped: max iterations reached.")
+    print(f"  Iterations used: {final_state['iteration']}")
     print("=" * 60)
 
     return final_state

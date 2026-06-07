@@ -1,7 +1,7 @@
 .venv/
 __pycache__/
 generated_program.py
-test_generated_program.py
+generated_tests.py
 .coverage
 experiments/results/
 .DS_Store

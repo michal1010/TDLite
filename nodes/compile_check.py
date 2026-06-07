@@ -1,6 +1,7 @@
 import py_compile
 from utils.config import PROGRAM_FILE
 from utils.state import AgentState
+from utils.io_utils import print_section
 
 
 def compile_check(state: AgentState) -> AgentState:
@@ -9,16 +10,14 @@ def compile_check(state: AgentState) -> AgentState:
         py_compile.compile(str(PROGRAM_FILE), doraise=True)
         compile_output = "Compilation succeeded."
         next_agent = "run_tests"
+        
     except py_compile.PyCompileError as exc:
         compile_output = str(exc)
         if "```python" in compile_output:
             compile_output = "Code failed, because you included ```python fences. DO NOT include markdown fences, return only code."
         next_agent = "a3"
 
-    print(f"\n{'=' * 60}")
-    print(f"[Compile Check] routing -> {next_agent}")
-    print(compile_output)
-    print("=" * 60)
+    print_section(f"[Compile Check] result: {compile_output}\nRouting to: {next_agent}")
 
     return {
         "messages": [],
@@ -36,4 +35,5 @@ def compile_check(state: AgentState) -> AgentState:
         "input_tokens": state["input_tokens"],
         "output_tokens": state["output_tokens"],
         "compile_iteration": state["compile_iteration"],
+        "debug_has_issues": state["debug_has_issues"]
     }

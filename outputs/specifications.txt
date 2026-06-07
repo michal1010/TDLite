@@ -1,11 +1,7 @@
-# Cases: returns False
-
 Test case 1:
   Description: Returns False when no two numbers in the list are closer than the threshold.
   Input: numbers = [1.0, 2.0, 3.0], threshold = 0.5
   Expected output: False
-
-# Cases: returns True
 
 Test case 2:
   Description: Returns True when at least two numbers in the list are closer than the threshold.
