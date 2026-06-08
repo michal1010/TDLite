@@ -56,5 +56,6 @@ def create_initial_state() -> AgentState:
         "specifications": "",
         "input_tokens": {},
         "output_tokens": {},
-        "debug_has_issues": True
+        "debug_has_issues": True,
+        "debug_mode": False,
     }

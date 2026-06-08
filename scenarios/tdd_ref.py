@@ -97,11 +97,12 @@ def create_initial_state() -> AgentState:
         "test_outputs": [],
         "debug_reports": [],
         "ever_passed_tests": [],
-        "next_agent": "a1",
+        "next_agent": "a11",
         "iteration": 0,
         "specifications": "",
         "input_tokens": {},
         "output_tokens": {},
         "compile_iteration": 0,
-        "debug_has_issues": True
+        "debug_has_issues": True,
+        "debug_mode": False,
     }
