@@ -32,5 +32,5 @@ class AgentState(TypedDict):
     compile_iteration: int
     debug_has_issues: bool
     debug_mode: bool
-
+    test_iteration: int
 

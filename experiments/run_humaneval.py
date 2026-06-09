@@ -44,8 +44,8 @@ def run_pipeline(graph: Any, description: str, initial_state: AgentState) -> Age
     Run the full TDLite pipeline on a problem description string.
     Returns the final AgentState.
     """
-    initial_state["program_description"] = description
-    return graph.invoke(initial_state)
+    state = {**initial_state, "program_description": description}
+    return graph.invoke(state)
 
 
 def run_single(
@@ -198,18 +198,6 @@ def print_summary(results: list[dict], run_dir: Path, has_tests: bool) -> None:
         print(f"  {r['problem_id']:<6} {r['entry_point']:<32} {he:<11} {ip:<10} {r['iterations']}")
     print(f"{'='*60}")
 
-
-def choose_scenario(scenario: str):
-    if scenario == "s1":
-        return base.build_graph()
-    elif scenario == "s2":
-        return ref.build_graph()
-    elif scenario == "s3d":
-        raise ValueError("Scenario s3 is not implemented yet")
-    elif scenario == "s4":
-        return tdd_ref.build_graph()
-    else:
-        raise ValueError(f"Unknown scenario: {scenario}")
 
 
 def run_experiments_humaneval(args, graph, initial_state) -> None:

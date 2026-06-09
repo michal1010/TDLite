@@ -73,6 +73,7 @@ def create_initial_state() -> AgentState:
         "ever_passed_tests": [],
         "next_agent": "a2",
         "iteration": 0,
+        "test_iteration": 0,
         "compile_iteration": 0,
         "specifications": "",
         "input_tokens": {},

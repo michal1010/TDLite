@@ -79,7 +79,7 @@ def run_problem(args, graph: StateGraph, initial_state: AgentState, description_
 
     title = (
         f"LangGraph TDD Pipeline - Starting\n"
-        f"Description file: {description_file if description_file else 'None, using dataset example'}"
+        f"Description file: {description_file if description_file else 'None, using dataset example'}\n"
         f"Scenario: {args.scenario}"
     )
     print_section(title)

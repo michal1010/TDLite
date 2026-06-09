@@ -15,6 +15,7 @@ TEMP_DEBUG    = 0.2   # A4    — conservative, analytical
 
 MAX_ITERATIONS = 8
 MAX_COMPILE_ITERATIONS = 5
+MAX_TEST_ITERATIONS = 5
 
 TEST_EXAMPLE = """\
 import unittest
