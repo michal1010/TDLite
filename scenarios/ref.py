@@ -22,6 +22,7 @@ def route_after_compile(state: AgentState) -> Literal["a4", "a3", "__end__"]:
 
 def route_after_debug(state: AgentState) -> Literal["a2", "__end__"]:
     if not state["debug_has_issues"]:
+        print("A4 found no issues — exiting.")
         return "__end__"
     if state["iteration"] >= MAX_ITERATIONS:
         return "__end__"
