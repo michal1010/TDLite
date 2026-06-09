@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict, Optional
 
 from utils.state import AgentState
 
@@ -57,6 +57,19 @@ def _read_existing_header(csv_path: Path) -> Optional[list[str]]:
     with csv_path.open("r", newline="", encoding="utf-8") as handle:
         reader = csv.reader(handle)
         return next(reader, None)
+
+
+def _rewrite_csv_with_header(csv_path: Path, fieldnames: list[str]) -> None:
+    """Preserve old result rows while adding newly introduced metric columns."""
+    if not csv_path.exists() or csv_path.stat().st_size == 0:
+        return
+    with csv_path.open("r", newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
 
 
 def _resolve_path(path_value: str, base_dir: Path) -> Path:
@@ -143,6 +156,14 @@ def _build_row(final_state: AgentState, coverage_report: Optional[Dict[str, Any]
     row["total_input_tokens"] = _sum_tokens(input_tokens)
     row["total_output_tokens"] = _sum_tokens(output_tokens)
 
+    row["mutation_score"]       = -1.0
+    row["mutants_killed"]       = -1
+    row["mutants_survived"]     = -1
+    row["mutants_timeout"]      = -1
+    row["mutants_suspicious"]   = -1
+    row["mutants_total"]        = -1
+    row["mutation_warning"]     = ""
+
     for agent in AGENTS:
         row[f"{agent}_input_tokens"] = _safe_int(input_tokens.get(agent, 0))
         row[f"{agent}_output_tokens"] = _safe_int(output_tokens.get(agent, 0))
@@ -182,6 +203,7 @@ def append_single_run_results(
     final_state: AgentState,
     coverage_report: Optional[Dict[str, Any]],
     results_folder: str,
+    mutation_results: Optional[Dict[str, Any]] = None,
     specification_path: Optional[Path] = None,
     base_dir: Optional[Path] = None,
     hidden_test: Optional[str] = None,
@@ -194,6 +216,7 @@ def append_single_run_results(
         final_state: Final pipeline state produced by the graph.
         coverage_report: Coverage report dict from generate_coverage_report(), if run.
         results_folder: Folder name for this experiment's results.
+        mutation_results: Results of mutation score testing
         specification_path: Optional path to the specification file.
         hidden_test: Optional HumanEval hidden test code to snapshot.
         save_generated_test_artifacts: Whether to snapshot generated tests/specifications.
@@ -257,12 +280,31 @@ def append_single_run_results(
         _write_json(coverage_report, coverage_report_path)
 
     row = _build_row(final_state, coverage_report)
+    if mutation_results:
+        row.update({
+            "mutation_score":     mutation_results.get("mutation_score", -1.0),
+            "mutants_killed":     mutation_results.get("mutants_killed", -1),
+            "mutants_survived":   mutation_results.get("mutants_survived", -1),
+            "mutants_timeout":    mutation_results.get("mutants_timeout", -1),
+            "mutants_suspicious": mutation_results.get("mutants_suspicious", -1),
+            "mutants_total":      mutation_results.get("mutants_total", -1),
+            "mutation_warning":   mutation_results.get("mutation_warning", ""),
+        })
     row["instance_id"] = instance_id
 
     _write_json(row, run_summary_path)
 
     header = _read_existing_header(csv_path)
-    fieldnames: Iterable[str] = header or list(row.keys())
+    fieldnames = list(header or row.keys())
+
+    added_columns = False
+    for key in row.keys():
+        if key not in fieldnames:
+            fieldnames.append(key)
+            added_columns = True
+
+    if header and added_columns:
+        _rewrite_csv_with_header(csv_path, fieldnames)
 
     write_header = not csv_path.exists() or csv_path.stat().st_size == 0
     with csv_path.open("a", newline="", encoding="utf-8") as handle:
@@ -280,6 +322,9 @@ def append_experiments_results(results: list[dict], results_folder: str, timesta
     avg_line_coverage = sum(r.get("line_coverage_percent", 0) for r in results) / total if total else 0
     avg_branch_coverage = sum(r.get("branch_coverage_percent", 0) for r in results) / total if total else 0
     avg_iters = sum(r["iterations"] for r in results) / total if total else 0
+    valid_mutation = [r.get("mutation_score", -1.0) for r in results if r.get("mutation_score", -1.0) >= 0]
+    avg_mutation_score = sum(valid_mutation) / len(valid_mutation) if valid_mutation else -1.0
+    
     summary = {
         "timestamp": timestamp,
         "total": total,
@@ -289,5 +334,6 @@ def append_experiments_results(results: list[dict], results_folder: str, timesta
         "tokens": _build_token_summary_from_results(results),
         "avg_line_coverage": avg_line_coverage,
         "avg_branch_coverage": avg_branch_coverage,
+        "avg_mutation_score": avg_mutation_score,
     }
     _write_json(summary, results_dir / f"summary_{timestamp}.json")

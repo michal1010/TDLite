@@ -1,29 +1,4 @@
-# Cases: typical grouped input with varying depths
 Test case 1:
-  Description: Calculates the maximum depth of nesting for three groups.
-  Input: paren_string = '(()()) ((())) () ((())()())'
-  Expected output: [2, 3, 1, 3]
-
-# Cases: single group
-Test case 2:
-  Description: Returns the depth of a single nested group.
-  Input: paren_string = '((()))'
-  Expected output: [3]
-
-# Cases: empty string
-Test case 3:
-  Description: Handles an empty input string.
-  Input: paren_string = ''
-  Expected output: []
-
-# Cases: multiple groups with varying depths
-Test case 4:
-  Description: Calculates the maximum depth of nesting for four groups.
-  Input: paren_string = '((())) () (()()) ((()()))'
-  Expected output: [3, 1, 2, 3]
-
-# Cases: single level of nesting
-Test case 5:
-  Description: Handles a string with only one level of nesting.
-  Input: paren_string = '() () ()'
-  Expected output: [1, 1, 1]
+  Description: Splits a string of three balanced paren groups, ignoring spaces.
+  Input: paren_string = '( ) (( )) (( )( ))'
+  Expected output: ['()', '(())', '(()())']

@@ -1,26 +1,28 @@
 # TDLite
 
-TDLite is a small experiment in building a simple **TDD AI pipeline** with
-LangGraph and a local Ollama model.
+TDLite is a small experiment in building a **TDD AI pipeline** with LangGraph and a local Ollama model.
 
-The pipeline starts from a plain-text problem description and lets several agents
-work together:
+The pipeline starts from a plain-text problem description and lets several agents work together:
 
-1. **A1 - Test Generation** writes unit tests from the problem description.
-2. **A2 - Patch Creation** writes the program implementation from the tests.
-3. **Compile Check** verifies that the generated program is valid Python.
-4. **A3 - Patch Revision** fixes compilation errors when they appear.
-5. **Test Run** executes the generated tests.
-6. **A4 - Debug** explains failing tests and sends feedback back to A2.
+1. **A11 - Specification Generation** writes structured natural language specs from the problem description.
+2. **A12 - Test Generation** writes unit tests from the specs.
+3. **A2 - Patch Creation** writes the implementation from the tests.
+4. **Compile Check** verifies the generated program is valid Python.
+5. **A3 - Patch Revision** fixes compilation errors when they appear.
+6. **Test Run** executes the generated tests.
+7. **A4 - Debug** explains failing tests and sends feedback back to A2.
 
-The loop stops when all tests pass or when the maximum number of iterations is
-reached.
+The loop stops when all tests pass or the maximum number of iterations is reached.
 
-## Project Folders
+## Project Structure
 
-- `workflows` - Contains the langgraph execution pipelines of the four workflow we test (TDD, TDD+REF, REF, none).
-- `outputs` - Contains the outputs of the program. Namely, the generated tests and the generated program files.
-
+- `scenarios/` — The four pipeline graphs: `tdd.py`, `tdd_ref.py`, `ref.py`, `base.py`.
+- `agents/` — Individual agent implementations (A1, A2, A3, A4).
+- `nodes/` — Shared pipeline nodes (compile check, test run, syntax check).
+- `experiments/` — Evaluation utilities: HumanEval loader, coverage/mutation metrics, result storage.
+- `utils/` — Config, LLM wrapper, prompts, state definition.
+- `outputs/` — Generated files written during a run (`generated_program.py`, `generated_tests.py`).
+- `inputs/` — Optional hand-written problem description files.
 
 ## Requirements
 
@@ -28,137 +30,124 @@ reached.
 - Ollama running locally
 - Python dependencies from `requirements.txt`
 
-Install Python dependencies:
-
 ```bash
 pip install -r requirements.txt
 ```
 
-## Ollama setup
+## Ollama Setup
 
-In this experiment qwen2.5-coder:3b is used.
-
-You can also use qwen3:0.6b, be sure to change the model in get_llm(), in langgraph_agents.py.
-
-Use your model of choice in the following commands.
-
-Start Ollama if it is not already running:
+The pipeline uses `qwen2.5-coder:7b` by default (change to `3b` in `.env` or `utils/config.py` if needed).
 
 ```bash
-ollama run qwen3:0.6b
+ollama pull qwen2.5-coder:7b
+ollama run qwen2.5-coder:7b
 ```
 
-Pull the model used by the pipeline:
+Useful Ollama commands:
 
 ```bash
-ollama pull qwen3:0.6b
-```
-
-List installed models:
-
-```bash
-ollama list
-```
-
-Check whether a model is currently loaded and what it is doing:
-
-```bash
-ollama ps
-```
-
-```bash
+ollama list                         # list installed models
+ollama ps                           # check what is currently loaded
 curl http://localhost:11434/api/tags
 ```
 
-## How to run
+## Scenarios
 
-You can run the full pipeline, which:
+| Flag | Graph | Description |
+|------|-------|-------------|
+| `default` | A2 → compile → A3 | No TDD, no debug loop |
+| `REF` | A2 → compile → A3/A4 | No TDD, with A4 debug loop |
+| `TDD` | A11 → A12 → A2 → compile → A3 → run tests | TDD, single pass |
+| `TDD_REF` | A11 → A12 → A2 → compile → A3 → run tests → A4 | TDD with A4 debug loop |
 
-1. Deletes `generated_tests.py` and `generated_program.py`.
-2. Runs `langgraph_agents.py` with some description.
+## How to Run
 
-Make sure you have a virtual environment named `.venv` setup:
+Set up a virtual environment first:
 
 ```bash
 python -m venv .venv
-
-call .venv/Scripts/activate # Or however you activate a venv on your machine
-
+source .venv/bin/activate (or) .venv\Scripts\activate on Windows
 pip install -r requirements.txt
 ```
 
-The current entry point is `langgraph_agents.py`. Choose a scenario with
-`--scenario`, then either run a single sample task with `--sample_run` or a
-HumanEval range with `--range` or `--ids`.
+The entry point is `run.py`.
 
-Run one sample task from a file in `inputs/` and store experiment artifacts:
+**Run one random problem from a dataset (single run):**
 
 ```bash
-python3 langgraph_agents.py --scenario s1 --file input_easy.txt --sample_run --store_results experiment_x
+python run.py -d HumanEval -s TDD
+python run.py -d MBPP -s TDD_REF --store_results experiment_x
 ```
 
-Run one random sample task from the default dataset and store artifacts:
+**Run from a file in `inputs/`:**
 
 ```bash
-python3 langgraph_agents.py --scenario s1 --sample_run --store_results experiment_x
+python run.py -f input_easy.txt -s TDD --store_results experiment_x
 ```
 
-Run HumanEval problem from 1 to 5 and store artifacts:
+**Run a batch of HumanEval problems (full experiment):**
 
 ```bash
-python3 langgraph_agents.py --scenario s1 --range 1 5 --store_results experiment_x
+python run.py -d HumanEval -s TDD --sample_run --range 0 9 --store_results experiment_x
+python run.py -d HumanEval -s TDD --sample_run --ids 0 5 12 --store_results experiment_x
 ```
 
-Useful flags:
+## Flags
 
-- `--scenario s1|s2|s4` selects the pipeline graph.
-- `--sample_run` runs one sampled/file-based task instead of HumanEval experiments.
-- `--file <name>` reads a task from `inputs/<name>`.
-- `--range START END` runs an inclusive HumanEval ID range.
-- `--ids ID ...` runs specific HumanEval IDs.
-- `--store_results <folder>` writes artifacts under `experiments/results/<folder>/`.
+| Flag | Description |
+|------|-------------|
+| `-s`, `--scenario` | Pipeline to run: `TDD`, `TDD_REF`, `REF`, `default` |
+| `-d`, `--dataset` | Dataset for random single run: `HumanEval` or `MBPP` |
+| `-f`, `--file` | Read problem from `inputs/<name>` instead of a dataset |
+| `--sample_run` | Run a batch HumanEval experiment (with `--range` or `--ids`) instead of a single random problem |
+| `--range START END` | Inclusive HumanEval ID range for batch runs |
+| `--ids ID ...` | Specific HumanEval IDs for batch runs |
+| `--store_results <folder>` | Write artifacts to `experiments/results/<folder>/` |
+| `--debug` | Set max iterations to 1 for quick testing |
+| `--mutation_debug` | Print verbose mutation scoring output (temp dir, pytest output, mutmut output) |
 
-## What the program generates
+## Results Storage
 
-During a run, the pipeline writes:
+When `--store_results <folder>` is passed, each run writes to:
 
-```text
-generated_tests.py
-generated_program.py
+```
+experiments/results/<folder>/
+├── results.csv                        ← one row per problem; coverage + mutation columns
+└── experiment_files/
+    └── instance_N/
+        ├── run_summary.json           ← all metrics as JSON
+        ├── coverage_report.json       ← line/branch coverage detail
+        ├── agent_outputs.json         ← generated code, tests, specs from pipeline state
+        ├── generated_program.py       ← snapshot of generated implementation
+        ├── generated_tests.py         ← snapshot of generated tests
+        ├── specifications.txt         ← snapshot of A11 specs
+        └── task.txt                   ← the problem description
 ```
 
-The generated test file is written first. The generated implementation is then
-revised until:
+## Metrics
 
-- it compiles,
-- the tests pass,
-- or the pipeline reaches the maximum iteration limit.
+**Coverage** (line and branch) measures how well the generated tests exercise the generated code.
 
-## Typical flow
+**Mutation score** measures test quality: generated tests are run against mutations of the canonical solution. A score of `1.0` means all mutants were killed. A score of `-1.0` means scoring was skipped or failed (check `mutation_warning` in `run_summary.json`). Only computed for TDD scenarios that produce tests.
 
-```text
+## Typical Flow (TDD_REF)
+
+```
 problem description
         ↓
-A1 writes tests
+A11 writes specs
         ↓
-test syntax check
-        ↓       ↘
-A2 writes code   A1
+A12 writes tests
         ↓
-compile check
-   ↙         ↘
-A3 fix  ->   run tests
-               ↙      ↘
-          A4 debug    finish
-               ↓
-              A2
+syntax check
+   ↙        ↘
+A12         A2 writes code
+                  ↓
+            compile check
+              ↙         ↘
+         A3 fix →     run tests
+                       ↙      ↘
+                  A4 debug   finish
+                       ↓
+                      A2
 ```
-
-## Notes
-
-- The pipeline currently uses the local model `qwen3:0.6b`.
-- Smaller models may produce weak tests or incorrect patches more often.
-- If the model is CPU-only, responses can be slow, especially when prompts get
-  large.
-- `ollama ps` is the quickest way to inspect the currently loaded model while a
-  run is in progress.

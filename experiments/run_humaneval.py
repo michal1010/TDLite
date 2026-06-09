@@ -5,19 +5,18 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from experiments.test_metrics import generate_coverage_report
-from experiments.humaneval_loader import get_problems, get_hidden_tests
+
 import scenarios.tdd_ref as tdd_ref
 import scenarios.base as base
 import scenarios.ref as ref
 from utils.state import AgentState
 from experiments.result_utils import (
     append_experiments_results,
-    append_single_run_results
+    append_single_run_results,
 )
+from experiments.test_metrics import generate_coverage_report, compute_mutation_score
+from experiments.humaneval_loader import get_problems, get_hidden_tests, get_canonical_solutions
 
-
-# ── Evaluation ────────────────────────────────────────────────────────────────
 
 def evaluate_solution(code: str, test_code: str, entry_point: str) -> tuple[bool, str]:
     """
@@ -43,7 +42,6 @@ def evaluate_solution(code: str, test_code: str, entry_point: str) -> tuple[bool
 def run_pipeline(graph: Any, description: str, initial_state: AgentState) -> AgentState:
     """
     Run the full TDLite pipeline on a problem description string.
-    Used by run_humaneval.py and main() below.
     Returns the final AgentState.
     """
     initial_state["program_description"] = description
@@ -55,21 +53,23 @@ def run_single(
     hidden: dict,
     graph: Any,
     initial_state: AgentState,
-) -> tuple[dict, AgentState | None, Path]:
+) -> tuple[dict, AgentState | None]:
     """
     Run the pipeline on one problem, then evaluate against hidden tests.
 
     problem — pipeline-safe dict: {problem_id, task_id, prompt}   (no test)
     hidden  — evaluation dict:    {test, entry_point}              (never touches pipeline)
     """
-    pid      = problem["problem_id"]
+    pid            = problem["problem_id"]
     final_state: AgentState | None = None
     input_tokens: dict = {}
     output_tokens: dict = {}
     pipeline_error = False
+    internal_pass  = False
+    iterations     = 0
+    error_msg      = ""
 
     try:
-        # ── Pipeline sees only the prompt ─────────────────────────────────────
         print(f"Running pipeline for problem {pid}...")
         final_state = run_pipeline(graph, problem["prompt"], initial_state)
 
@@ -79,17 +79,13 @@ def run_single(
         input_tokens  = final_state.get("input_tokens", {})
         output_tokens = final_state.get("output_tokens", {})
 
-        # ── Hidden tests used only here, after pipeline is done ───────────────
         humaneval_pass, error_msg = evaluate_solution(
             code, hidden["test"], hidden["entry_point"]
         )
 
     except Exception:
-        code          = ""
-        internal_pass = False
         humaneval_pass = False
-        iterations    = 0
-        error_msg     = traceback.format_exc()
+        error_msg      = traceback.format_exc()
         pipeline_error = True
 
     result = {
@@ -116,15 +112,15 @@ def _has_generated_test_artifacts(state: AgentState | None) -> bool:
     )
 
 
-# ── Main loop ─────────────────────────────────────────────────────────────────
-
 def run_on_problems(
-    problems:     list[dict],
-    hidden_tests: dict[int, dict],
-    graph:        Any,
-    initial_state: AgentState,
-    results_folder: str | None,
-) -> list[dict]:
+    problems:            list[dict],
+    hidden_tests:        dict[int, dict],
+    graph:               Any,
+    initial_state:       AgentState,
+    results_folder:      str | None,
+    canonical_solutions: dict[int, str] | None = None,
+    mutation_debug:      bool = False,
+) -> tuple[list[dict], bool]:
     results = []
 
     for i, problem in enumerate(problems):
@@ -136,11 +132,11 @@ def run_on_problems(
         result, agent_state = run_single(problem, hidden_tests[pid], graph, initial_state)
 
         save_generated_test_artifacts = _has_generated_test_artifacts(agent_state)
-        interal_pass = result["internal_pass"] if save_generated_test_artifacts else "n/a"
+        internal_pass = result["internal_pass"] if save_generated_test_artifacts else "n/a"
 
         status = "PASS ✓" if result["humaneval_pass"] else "FAIL ✗"
         print(f"\n  Result: {status}  |  iterations: {result['iterations']}"
-              f"  |  internal_pass: {interal_pass}")
+              f"  |  internal_pass: {internal_pass}")
         if result["error"]:
             error_lines = result["error"].splitlines()
             print(f"  Error:  {error_lines[-1] if error_lines else result['error']}")
@@ -148,15 +144,24 @@ def run_on_problems(
         print(f"Input tokens: {result['input_tokens']}")
         print(f"Output tokens: {result['output_tokens']}")
 
-        report = None
+        report          = None
+        mutation_results = None
         if save_generated_test_artifacts:
             report = generate_coverage_report(verbose=True)
-            result["line_coverage_percent"] = report["line_coverage"]["percent"]
+            result["line_coverage_percent"]   = report["line_coverage"]["percent"]
             result["branch_coverage_percent"] = report["branch_coverage"]["percent"]
+
+            reference_code = canonical_solutions.get(pid) if canonical_solutions else None
+            mutation_results = compute_mutation_score(
+                code_text=reference_code,
+                debug=mutation_debug,
+            )
+            result["mutation_score"] = mutation_results.get("mutation_score", -1.0)
         else:
             print("Coverage report skipped: this scenario did not generate tests/specifications.")
-            result["line_coverage_percent"] = 0
+            result["line_coverage_percent"]   = 0
             result["branch_coverage_percent"] = 0
+            result["mutation_score"]          = -1.0
 
         results.append(result)
 
@@ -164,6 +169,7 @@ def run_on_problems(
             append_single_run_results(
                 final_state=agent_state,
                 coverage_report=report,
+                mutation_results=mutation_results,
                 results_folder=results_folder,
                 hidden_test=hidden_tests[pid]["test"],
                 save_generated_test_artifacts=save_generated_test_artifacts,
@@ -171,8 +177,6 @@ def run_on_problems(
 
     return results, save_generated_test_artifacts
 
-
-# ── Summary ───────────────────────────────────────────────────────────────────
 
 def print_summary(results: list[dict], run_dir: Path, has_tests: bool) -> None:
     total  = len(results)
@@ -190,10 +194,7 @@ def print_summary(results: list[dict], run_dir: Path, has_tests: bool) -> None:
     print(f"  {'-'*65}")
     for r in results:
         he = "PASS" if r["humaneval_pass"] else "FAIL"
-        if has_tests:
-            ip = "pass" if r["internal_pass"]  else "fail"
-        else:
-            ip = "n/a"
+        ip = ("pass" if r["internal_pass"] else "fail") if has_tests else "n/a"
         print(f"  {r['problem_id']:<6} {r['entry_point']:<32} {he:<11} {ip:<10} {r['iterations']}")
     print(f"{'='*60}")
 
@@ -204,29 +205,37 @@ def choose_scenario(scenario: str):
     elif scenario == "s2":
         return ref.build_graph()
     elif scenario == "s3d":
-        return ValueError("Scenario s3 is not implemented yet")
-    elif scenario == 's4':
+        raise ValueError("Scenario s3 is not implemented yet")
+    elif scenario == "s4":
         return tdd_ref.build_graph()
     else:
         raise ValueError(f"Unknown scenario: {scenario}")
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
 def run_experiments_humaneval(args, graph, initial_state) -> None:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp   = datetime.now().strftime("%Y%m%d_%H%M%S")
     ids         = args.ids if args.ids else None
     range_start = args.range[0] if args.range else None
     range_end   = args.range[1] if args.range else None
 
     print("Loading HumanEval dataset...")
-    problems     = get_problems(ids=ids, range_start=range_start, range_end=range_end)
-    hidden_tests = get_hidden_tests(ids=ids, range_start=range_start, range_end=range_end)
+    problems            = get_problems(ids=ids, range_start=range_start, range_end=range_end)
+    hidden_tests        = get_hidden_tests(ids=ids, range_start=range_start, range_end=range_end)
+    canonical_solutions = get_canonical_solutions(ids=ids, range_start=range_start, range_end=range_end)
 
     if not problems:
         print("No matching problems found. HumanEval has IDs 0–163.")
         sys.exit(1)
 
-    results, has_tests = run_on_problems(problems, hidden_tests, graph, initial_state, args.store_results)
+    results, has_tests = run_on_problems(
+        problems,
+        hidden_tests,
+        graph,
+        initial_state,
+        args.store_results,
+        canonical_solutions=canonical_solutions,
+        mutation_debug=args.mutation_debug,
+    )
 
     if args.store_results:
         append_experiments_results(results, args.store_results, timestamp)
