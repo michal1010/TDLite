@@ -10,6 +10,20 @@ from utils.debug_helpers import trim_test_output, extract_suggested_fix
 import inspect
 from typing import TypedDict, Any
 
+import re
+
+_TYPING_NAMES = {
+    "List", "Dict", "Tuple", "Set", "Optional", "Union",
+    "Any", "Callable", "Type", "Sequence", "Iterator", "Generator"
+}
+
+def fix_typing_imports(code: str) -> str:
+    if "from typing import" in code or "import typing" in code:
+        return code
+    used = _TYPING_NAMES & set(re.findall(r'\b([A-Z][a-zA-Z]+)\b', code))
+    if not used:
+        return code
+    return f"from typing import {', '.join(sorted(used))}\n{code}"
 
 def _build_system_prompt(has_tests: bool, task_instruction: str) -> str:
     pipeline_type = "TDD " if has_tests else ""
@@ -135,6 +149,7 @@ def agent_a2_patch_creation(state: AgentState) -> dict:
     system_prompt, human_prompt = _build_prompt(state)
     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=human_prompt)])
     code = response["parsed"].content
+    code = fix_typing_imports(code)
     update_token_state(state, response["raw"], "a2")
 
     save_text(PROGRAM_FILE, code)

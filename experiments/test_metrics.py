@@ -432,6 +432,12 @@ def compute_mutation_score(
         combined_output = (
             run_proc.stdout + run_proc.stderr + "\n" + results_proc.stdout + results_proc.stderr
         )
+
+        if "please use the WSL" in combined_output or "Native windows support" in combined_output:
+            warning = "mutmut does not support native Windows; run under WSL for mutation scoring."
+            print(f"Warning: {warning}")
+            return _empty_mutation_result(warning)
+            
         counts = _parse_mutmut_results(combined_output)
 
         killed   = counts["killed"]
