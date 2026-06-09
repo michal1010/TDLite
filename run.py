@@ -22,7 +22,7 @@ import shutil
 from langgraph.graph import StateGraph
 from experiments.result_utils import append_single_run_results
 from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE
-from experiments.test_metrics import generate_coverage_report
+from experiments.test_metrics import generate_coverage_report, compute_mutation_score
 from utils.io_utils import parse_args, read_program_description, get_mbpp_prompts, get_humaneval_prompts, print_section
 from nodes.compile_check import compile_check
 from nodes.test_syntax_check import test_syntax_check
@@ -70,8 +70,7 @@ def clear_outputs_dir() -> None:
             path.unlink()
 
 
-def run_problem(args, graph: StateGraph, initial_state: AgentState, description_file=None) -> dict:
-
+def run_problem(args, graph: StateGraph, initial_state: AgentState, description_file=None, reference_code=None) -> dict:
     results_folder_name = None
 
     if args.store_results:
@@ -101,21 +100,27 @@ def run_problem(args, graph: StateGraph, initial_state: AgentState, description_
     print(f"Output tokens: {final_state['output_tokens']}")
     save_generated_test_artifacts = _has_generated_test_artifacts(final_state)
     report = None
+    mutation_results = None
     if save_generated_test_artifacts:
         report = generate_coverage_report(verbose=True)
+        mutation_results = compute_mutation_score(
+            code_text=reference_code,
+            debug=args.mutation_debug,
+        )
     else:
         print("Coverage report skipped: this scenario did not generate tests/specifications.")
-
     if results_folder_name:
         append_single_run_results(
             final_state=final_state,
             coverage_report=report,
             results_folder=results_folder_name,
             save_generated_test_artifacts=save_generated_test_artifacts,
+            mutation_results=mutation_results,
         )
 
 
-def choose_sample_run(args):
+def choose_sample_run(args) -> tuple[str, str | None]:
+    reference_code = None
     if args.file is not None:
         file_name = args.file or str(DEFAULT_PROGRAM_DESCRIPTION_FILE)
         description_file = Path("inputs") / file_name
@@ -123,16 +128,17 @@ def choose_sample_run(args):
         program_description = read_program_description(description_file)
     elif args.dataset == "MBPP":
         print("Loading program description from MBPP dataset...")
-        descriptions = get_mbpp_prompts()
+        descriptions, reference_solutions = get_mbpp_prompts()
         r = randint(0, len(descriptions) - 1)
         program_description = descriptions[r]
+        reference_code = reference_solutions[r]
     elif args.dataset == "HumanEval":
-        print(f"Reading program description from HumanEval dataset...")
-        descriptions = get_humaneval_prompts()
+        print("Reading program description from HumanEval dataset...")
+        descriptions, canonical_solutions = get_humaneval_prompts()
         r = randint(0, len(descriptions) - 1)
         program_description = descriptions[r]
-    return program_description
-
+        reference_code = canonical_solutions[r]
+    return program_description, reference_code
 
 
 def main():
@@ -147,9 +153,9 @@ def main():
         _cfg.MAX_ITERATIONS = 1
         print("[DEBUG MODE] max iterations set to 1")
     if args.sample_run == False:
-        program_description = choose_sample_run(args)
+        program_description, reference_code = choose_sample_run(args)
         initial_state["program_description"] = program_description
-        run_problem(args, graph, initial_state, description_file)
+        run_problem(args, graph, initial_state, description_file, reference_code)
     else:
         clear_outputs_dir()
         run_experiments_humaneval(args, graph, initial_state)

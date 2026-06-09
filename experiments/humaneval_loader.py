@@ -15,7 +15,6 @@ import json
 from pathlib import Path
 
 
-# ── Internal loader ───────────────────────────────────────────────────────────
 
 def _load_all(local_path: str | None = None) -> list[dict]:
     """
@@ -44,6 +43,7 @@ def _load_all(local_path: str | None = None) -> list[dict]:
             "prompt":      item["prompt"],
             "_test":       item["test"],         # underscore = internal only
             "_entry_point": item["entry_point"], # underscore = internal only
+            "_canonical_solution": item.get("canonical_solution", ""),
         })
 
     return sorted(problems, key=lambda x: x["problem_id"])
@@ -76,6 +76,7 @@ def _load_from_jsonl(path: Path) -> list[dict]:
                 "prompt":       item["prompt"],
                 "_test":        item["test"],
                 "_entry_point": item["entry_point"],
+                "_canonical_solution": item.get("canonical_solution", ""),
             })
     return sorted(problems, key=lambda x: x["problem_id"])
 
@@ -133,3 +134,22 @@ def get_hidden_tests(
         }
         for p in selected
     }
+
+def get_canonical_solutions(
+    ids:         list[int] | None = None,
+    range_start: int        | None = None,
+    range_end:   int        | None = None,
+    local_path:  str        | None = None,
+) -> dict[int, str]:
+    """
+    Return prompt + canonical_solution keyed by problem_id.
+    Used only for post-pipeline mutation scoring — never passed to any agent.
+    """
+    all_problems = _load_all(local_path)
+    selected     = _apply_filter(all_problems, ids, range_start, range_end)
+    return {
+        p["problem_id"]: p["prompt"] + p["_canonical_solution"]
+        for p in selected
+    }
+
+    

@@ -78,7 +78,11 @@ def parse_args() -> argparse.Namespace:
         help="whether to run in debug mode with more verbose output and no retries",
     )
 
- 
+    parser.add_argument(
+        "--mutation_debug",
+        action="store_true",
+        help="print verbose mutation scoring output (temp dir, pytest output, mutmut output)",
+    )
 
     args = parser.parse_args()
     args.dataset = _normalize_optional_arg(args.dataset, "MBPP")
@@ -99,17 +103,19 @@ def parse_args() -> argparse.Namespace:
 def save_text(path: Path, content: str) -> None:
     path.write_text(content.rstrip() + "\n", encoding="utf-8")
 
-def get_humaneval_prompts() -> list[str]:
+def get_humaneval_prompts() -> tuple[list[str], list[str]]:
     ds = load_dataset("openai/openai_humaneval")
     samples = ds["test"][:10]
     print(samples)
-    return samples["prompt"]
+    prompts = samples["prompt"]
+    canonical = [p + c for p, c in zip(samples["prompt"], samples["canonical_solution"])]
+    return prompts, canonical
 
 
-def get_mbpp_prompts() -> list[str]:
+def get_mbpp_prompts() -> tuple[list[str], list[str]]:
     ds = load_dataset("google-research-datasets/mbpp", "full")
     samples = ds["test"][:10]
-    return samples["text"]
+    return samples["text"], samples["code"]
 
 def print_section(title: str) -> None:
     print(f"\n{'=' * 60}")
