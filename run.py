@@ -90,10 +90,13 @@ def run_problem(args, graph: StateGraph, initial_state: AgentState, description_
 
     print("\n" + "=" * 60)
     if final_state["tests_passed"]:
-        print("  Pipeline finished: all tests passed.")
+        print_section(f"Pipeline finished: all tests passed.\nIterations used: {final_state['iteration']}")
+    elif not final_state.get("tests") and not final_state.get("debug_has_issues", True):
+        print_section(f"Pipeline finished: code review found no issues.\nIterations used: {final_state['iteration']}")
+    elif not final_state.get("tests") and final_state.get("next_agent") == "run_tests":
+        print_section(f"Pipeline finished: code compiled successfully.\nIterations used: {final_state['iteration']}")
     else:
-        print("  Pipeline stopped before all tests passed.")
-    print(f"  Iterations used: {final_state['iteration']}")
+        print_section(f"Pipeline stopped before all tests passed.\nIterations used: {final_state['iteration']}")
     print("=" * 60)
 
     print(f"Input tokens: {final_state['input_tokens']}")
