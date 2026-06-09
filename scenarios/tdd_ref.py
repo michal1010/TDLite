@@ -6,7 +6,7 @@ from agents.a1_test_generation import agent_a11_structured_nl_specifications, ag
 from agents.a2_patch_creation import agent_a2_patch_creation
 from agents.a3_patch_revision import agent_a3_patch_revision
 from agents.a4_debug import agent_a4_debug
-from utils.config import MAX_ITERATIONS
+from utils.config import MAX_ITERATIONS, MAX_TEST_ITERATIONS, MAX_COMPILE_ITERATIONS
 from nodes.compile_check import compile_check
 from nodes.test_syntax_check import test_syntax_check
 from nodes.run_tests import run_tests
@@ -14,18 +14,20 @@ from utils.state import AgentState
 
 
 def route_after_compile(state: AgentState) -> Literal["run_tests", "a3", "__end__"]:
-    if state["iteration"] >= MAX_ITERATIONS and state["next_agent"] != "run_tests":
-        return "__end__"
     if state["next_agent"] == "run_tests":
         return "run_tests"
+    if state["compile_iteration"] >= MAX_COMPILE_ITERATIONS:
+        return "__end__"
+    if state["iteration"] >= MAX_ITERATIONS:
+        return "__end__"
     return "a3"
 
 
 def route_after_test_compile(state: AgentState) -> Literal["a2", "a12", "__end__"]:
-    if state["iteration"] >= MAX_ITERATIONS and state["next_agent"] != "a2":
-        return "__end__"
     if state["next_agent"] == "a2":
         return "a2"
+    if state["test_iteration"] >= MAX_TEST_ITERATIONS:
+        return "__end__"
     return "a12"
 
 
@@ -99,6 +101,7 @@ def create_initial_state() -> AgentState:
         "ever_passed_tests": [],
         "next_agent": "a11",
         "iteration": 0,
+        "test_iteration": 0,
         "specifications": "",
         "input_tokens": {},
         "output_tokens": {},

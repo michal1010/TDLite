@@ -41,6 +41,7 @@ def agent_a11_structured_nl_specifications(state: AgentState) -> AgentState:
         HumanMessage(content=user_prompt),
     ])
 
+    update_token_state(state, response, "a11")
     specifications = response.content
     if state.get("debug_mode"):
         print(f"\n[Raw LLM Response for A11]\n{specifications}\n")
@@ -78,8 +79,7 @@ def agent_a12_test_generation(state: AgentState) -> AgentState:
     ])
 
     state["tests"] = response["parsed"].content
-    if state.get("debug_mode"):
-        update_token_state(state, response["raw"], "a12")
+    update_token_state(state, response["raw"], "a12")
     TEST_FILE.parent.mkdir(parents=True, exist_ok=True)
     save_text(TEST_FILE, state["tests"])
     return state

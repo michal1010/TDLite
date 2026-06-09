@@ -28,27 +28,27 @@ from experiments.test_metrics import generate_coverage_report
 from nodes.compile_check import compile_check
 from nodes.run_tests import run_tests
 from nodes.test_syntax_check import test_syntax_check
-from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE, MAX_ITERATIONS
+from utils.config import MAX_ITERATIONS, MAX_TEST_ITERATIONS, MAX_COMPILE_ITERATIONS
 from utils.io_utils import get_humaneval_prompts, get_mbpp_prompts, parse_args, read_program_description
 from utils.state import AgentState
 
 
 def route_after_compile(state: AgentState) -> Literal["run_tests", "a3", "__end__"]:
-    if state["iteration"] >= MAX_ITERATIONS and state["next_agent"] != "run_tests":
-        return "__end__"
     if state["next_agent"] == "run_tests":
         return "run_tests"
+    if state["compile_iteration"] >= MAX_COMPILE_ITERATIONS:
+        return "__end__"
+    if state["iteration"] >= MAX_ITERATIONS:
+        return "__end__"
     return "a3"
 
 
 def route_after_test_compile(state: AgentState) -> Literal["a2", "a12", "__end__"]:
-    if state["iteration"] >= MAX_ITERATIONS and state["next_agent"] != "a2":
-        return "__end__"
     if state["next_agent"] == "a2":
         return "a2"
+    if state["test_iteration"] >= MAX_TEST_ITERATIONS:
+        return "__end__"
     return "a12"
-
-
 
 def route_after_tests(state: AgentState) -> Literal["__end__"]:
     return "__end__"
@@ -113,6 +113,7 @@ def create_initial_state(debug: bool = False) -> AgentState:
         "ever_passed_tests": [],
         "next_agent": "a11",
         "iteration": 0,
+        "test_iteration": 0,
         "specifications": "",
         "input_tokens": {},
         "output_tokens": {},

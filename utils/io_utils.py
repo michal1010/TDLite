@@ -1,7 +1,5 @@
 import argparse
 from pathlib import Path
-from coverage import parser
-from coverage import parser
 from datasets import load_dataset
 
 from utils.config import DEFAULT_PROGRAM_DESCRIPTION_FILE

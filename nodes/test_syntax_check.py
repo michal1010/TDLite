@@ -32,13 +32,18 @@ def test_syntax_check(state: AgentState) -> AgentState:
         test_output = str(exc)
         print("Compilation error in generated tests:")
         print(test_output)
+
+    if syntax_ok and "def test_" not in tests_content:
+        syntax_ok = False
+        test_output = "No test methods found in generated tests, retrying..."
+
     print(test_output)
     next_agent = "a2"
     compile_iter = state["compile_iteration"] 
+    test_iter = state["test_iteration"]
     # If there is a syntax error we can retry with the initial agent
     if not syntax_ok:
-        
-        iterations = state["iteration"] + 1
+        test_iter += 1
         next_agent = "a12"
         print("Syntax error detected in generated tests, retrying one-shot with A12...")
 
@@ -58,6 +63,7 @@ def test_syntax_check(state: AgentState) -> AgentState:
         "ever_passed_tests": state["ever_passed_tests"],
         "next_agent": next_agent,
         "iteration": state["iteration"],
+        "test_iteration": test_iter,
         "specifications": state["specifications"],
         "input_tokens": state["input_tokens"],
         "output_tokens": state["output_tokens"],
