@@ -283,7 +283,7 @@ def _write_mutmut_config(temp_root: Path, temp_code: Path, temp_test: Path) -> N
     (temp_root / "setup.cfg").write_text(
         "[mutmut]\n"
         f"paths_to_mutate={rel_code}\n"
-        f"runner={sys.executable} -m pytest {temp_test} -x -q\n"
+        f"runner={Path(sys.executable).as_posix()} -m pytest {temp_test.as_posix()} -x -q\n"
         "backup=False\n"
         "\n"
         "[tool:pytest]\n"
@@ -327,7 +327,9 @@ def compute_mutation_score(
     code_path = (base_dir / code_file).resolve() if not Path(code_file).is_absolute() else Path(code_file)
     test_path = (base_dir / test_file).resolve() if not Path(test_file).is_absolute() else Path(test_file)
 
-    mutmut_exec = Path(sys.executable).parent / "mutmut"
+    _suffix = ".exe" if sys.platform == "win32" else ""
+    mutmut_exec = Path(sys.executable).parent / f"mutmut{_suffix}"
+
     if not mutmut_exec.exists():
         mutmut_exec = shutil.which("mutmut")
     if mutmut_exec is None:
