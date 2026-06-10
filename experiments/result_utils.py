@@ -208,6 +208,7 @@ def append_single_run_results(
     base_dir: Optional[Path] = None,
     hidden_test: Optional[str] = None,
     save_generated_test_artifacts: bool = True,
+    canonical_solution: Optional[str] = None,
 ) -> Path:
     """
     Append a pipeline run summary to a CSV file under experiments/results/<folder>.
@@ -271,6 +272,8 @@ def append_single_run_results(
     _write_snapshot(final_state.get("program_description", ""), task_snapshot)
     if hidden_test is not None:
         _write_snapshot(hidden_test, hidden_test_snapshot)
+        if canonical_solution is not None:
+            _write_snapshot(canonical_solution, instance_dir / "canonical.py")
 
     agent_outputs_path = instance_dir / "agent_outputs.json"
     coverage_report_path = instance_dir / "coverage_report.json"

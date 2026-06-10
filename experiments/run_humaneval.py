@@ -120,6 +120,7 @@ def run_on_problems(
     results_folder:      str | None,
     canonical_solutions: dict[int, str] | None = None,
     mutation_debug:      bool = False,
+    defer_mutation:      bool = False,
 ) -> tuple[list[dict], bool]:
     results = []
 
@@ -152,11 +153,15 @@ def run_on_problems(
             result["branch_coverage_percent"] = report["branch_coverage"]["percent"]
 
             reference_code = canonical_solutions.get(pid) if canonical_solutions else None
-            mutation_results = compute_mutation_score(
-                code_text=reference_code,
-                debug=mutation_debug,
-            )
-            result["mutation_score"] = mutation_results.get("mutation_score", -1.0)
+            if defer_mutation:
+                print("Mutation scoring deferred — artifacts saved for post-hoc run.")
+                result["mutation_score"] = -1.0
+            else:
+                mutation_results = compute_mutation_score(
+                    code_text=reference_code,
+                    debug=mutation_debug,
+                )
+                result["mutation_score"] = mutation_results.get("mutation_score", -1.0)
         else:
             print("Coverage report skipped: this scenario did not generate tests/specifications.")
             result["line_coverage_percent"]   = 0
@@ -166,6 +171,7 @@ def run_on_problems(
         results.append(result)
 
         if results_folder and agent_state is not None:
+            reference_code = canonical_solutions.get(pid) if canonical_solutions else None
             append_single_run_results(
                 final_state=agent_state,
                 coverage_report=report,
@@ -173,6 +179,7 @@ def run_on_problems(
                 results_folder=results_folder,
                 hidden_test=hidden_tests[pid]["test"],
                 save_generated_test_artifacts=save_generated_test_artifacts,
+                canonical_solution=reference_code if defer_mutation else None,
             )
 
     return results, save_generated_test_artifacts
@@ -223,6 +230,7 @@ def run_experiments_humaneval(args, graph, initial_state) -> None:
         args.store_results,
         canonical_solutions=canonical_solutions,
         mutation_debug=args.mutation_debug,
+        defer_mutation=args.defer_mutation,
     )
 
     if args.store_results:
