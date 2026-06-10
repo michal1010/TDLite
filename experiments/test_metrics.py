@@ -255,6 +255,7 @@ def _copy_metric_inputs(
     code_file: Path,
     test_file: Path,
     code_text: Optional[str],
+    test_text: Optional[str] = None,
 ) -> tuple[Path, Path]:
     temp_code = temp_root / "generated_program.py"
     temp_test = temp_root / "test_generated_program.py"
@@ -262,17 +263,15 @@ def _copy_metric_inputs(
     source_code = code_text if code_text is not None else code_file.read_text(encoding="utf-8")
     temp_code.write_text(source_code.rstrip() + "\n", encoding="utf-8")
 
-    test_content = test_file.read_text(encoding="utf-8")
-    test_content = test_content.replace(
+    raw_test = test_text if test_text is not None else test_file.read_text(encoding="utf-8")
+    raw_test = raw_test.replace(
         "from outputs.generated_program import",
         "from generated_program import",
     )
-    temp_test.write_text(test_content.rstrip() + "\n", encoding="utf-8")
+    temp_test.write_text(raw_test.rstrip() + "\n", encoding="utf-8")
 
     (temp_root / "conftest.py").write_text(
-        "import sys\n"
-        "from pathlib import Path\n"
-        "sys.path.insert(0, str(Path(__file__).parent))\n",
+        "import sys\nfrom pathlib import Path\nsys.path.insert(0, str(Path(__file__).parent))\n",
         encoding="utf-8",
     )
     return temp_code, temp_test
@@ -313,6 +312,7 @@ def compute_mutation_score(
     test_file: Path = TEST_FILE,
     timeout: int = 120,
     code_text: Optional[str] = None,
+    test_text: Optional[str] = None,
     debug: bool = False,
     keep_temp_dir: bool = False,
 ) -> dict:
@@ -381,6 +381,7 @@ def compute_mutation_score(
             code_file=code_path,
             test_file=test_path,
             code_text=code_text,
+            test_text=test_text,
         )
         _write_mutmut_config(temp_root, temp_code, temp_test)
 

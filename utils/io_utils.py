@@ -82,6 +82,12 @@ def parse_args() -> argparse.Namespace:
         help="print verbose mutation scoring output (temp dir, pytest output, mutmut output)",
     )
 
+    parser.add_argument(
+        "--defer_mutation",
+        action="store_true",
+        help="skip mutation scoring during the run; save artifacts for post-hoc scoring",
+    )
+
     args = parser.parse_args()
     args.dataset = _normalize_optional_arg(args.dataset, "MBPP")
     args.scenario = _normalize_optional_arg(args.scenario, "default")
