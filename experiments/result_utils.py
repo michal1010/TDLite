@@ -9,7 +9,7 @@ from utils.state import AgentState
 
 DEFAULT_SPECIFICATION_FILE = Path("outputs/specifications.txt")
 DEFAULT_PROGRAM_FILE = Path("outputs/generated_program.py")
-DEFAULT_TEST_FILE = Path("outputs/test_generated_program.py")
+DEFAULT_TEST_FILE = Path("outputs/generated_tests.py")
 DEFAULT_RESULTS_CSV = "results.csv"
 EXPERIMENT_FILES_DIR = "experiment_files"
 AGENTS = ("a11", "a12", "a2", "a3", "a4")
