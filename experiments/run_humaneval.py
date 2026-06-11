@@ -147,7 +147,8 @@ def run_on_problems(
 
         report          = None
         mutation_results = None
-        if save_generated_test_artifacts:
+        compiled_ok = agent_state.get("compile_output", "") == "Compilation succeeded."
+        if save_generated_test_artifacts and compiled_ok:
             report = generate_coverage_report(verbose=True)
             result["line_coverage_percent"]   = report["line_coverage"]["percent"]
             result["branch_coverage_percent"] = report["branch_coverage"]["percent"]
