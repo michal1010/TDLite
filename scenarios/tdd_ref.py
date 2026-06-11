@@ -38,6 +38,13 @@ def route_after_tests(state: AgentState) -> Literal["a4", "__end__"]:
         return "__end__"
     return "a4"
 
+def route_after_debug(state: AgentState) -> Literal["a2", "__end__"]:
+    if not state["debug_has_issues"]:
+        return "__end__"
+    if state["iteration"] >= MAX_ITERATIONS:
+        return "__end__"
+    return "a2"
+
 
 def build_graph() -> StateGraph:
     graph = StateGraph(AgentState)
@@ -83,7 +90,14 @@ def build_graph() -> StateGraph:
             "__end__": END,
         },
     )
-    graph.add_edge("a4", "a2")
+    graph.add_conditional_edges(
+        "a4",
+        route_after_debug,
+        {
+            "a2": "a2",
+            "__end__": END,
+        },
+)
 
     return graph.compile()
 
