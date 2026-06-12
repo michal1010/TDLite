@@ -258,7 +258,7 @@ def _copy_metric_inputs(
     test_text: Optional[str] = None,
 ) -> tuple[Path, Path]:
     temp_code = temp_root / "generated_program.py"
-    temp_test = temp_root / "generated_tests.py"
+    temp_test = temp_root / "test_generated_program.py"
 
     source_code = code_text if code_text is not None else code_file.read_text(encoding="utf-8")
     temp_code.write_text(source_code.rstrip() + "\n", encoding="utf-8")

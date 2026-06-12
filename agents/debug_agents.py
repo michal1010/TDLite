@@ -36,7 +36,7 @@ def debug_agent_12():
     """ 
 
     llm = ChatOllama(
-        model="qwen2.5:3b",
+        model="qwen2.5-coder:7b",
         temperature=0.2,
         model_kwargs={"think": "False"},
     ).with_structured_output(Response)  

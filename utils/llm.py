@@ -8,7 +8,7 @@ def get_llm(temperature: float = 0.2) -> ChatOllama:
     Change model back to model="qwen3:0.6b" if your laptop cannot handle.
     '''
     return ChatOllama(
-        model=MODEL_NAME,
+        model="qwen2.5-coder:7b",
         temperature=temperature,
         num_ctx=NUM_CTX,
     )
