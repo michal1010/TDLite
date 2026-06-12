@@ -5,8 +5,7 @@ from utils.io_utils import save_text, print_section
 from utils.llm import get_llm
 from utils.schemas import Response
 from utils.state import AgentState, update_token_state
-from utils.prompts import TEST_1_EXAMPLE_1, TEST_1_EXAMPLE_2, TEST_1_SYSTEM_PROMPT, TEST_2_EXAMPLE_1, TEST_2_EXAMPLE_2, TEST_2_EXAMPLE_2, TEST_2_SYSTEM_PROMPT
-
+from utils.prompts import TEST_1_EXAMPLE_1,  TEST_1_SYSTEM_PROMPT, TEST_2_EXAMPLE_1, TEST_2_SYSTEM_PROMPT
 from pydantic import BaseModel, Field
 from typing import List
 
@@ -27,11 +26,11 @@ def agent_a11_structured_nl_specifications(state: AgentState) -> AgentState:
 
     system_prompt = TEST_1_SYSTEM_PROMPT
     user_prompt = f"""
-        Example Behavior: {TEST_1_EXAMPLE_1} \n{TEST_1_EXAMPLE_2}
+        Example Behavior: {TEST_1_EXAMPLE_1} 
         Programming Problem: {program_description}
         """
 
-    if state.get("debug_mode"):
+    if state.get("debug_mode") == True:
         print(f"\n[Prompt for A11]\nSystem:\n{system_prompt}\n\nUser:\n{user_prompt}\n")
 
     llm = get_llm()
@@ -43,7 +42,7 @@ def agent_a11_structured_nl_specifications(state: AgentState) -> AgentState:
 
     update_token_state(state, response, "a11")
     specifications = response.content
-    if state.get("debug_mode"):
+    if state.get("debug_mode") == True:
         print(f"\n[Raw LLM Response for A11]\n{specifications}\n")
 
     state["specifications"] = specifications
@@ -60,14 +59,15 @@ def agent_a12_test_generation(state: AgentState) -> AgentState:
     print(f"\n A12 received structured NL specifications, preparing to write Python tests:")
     program_description = state["program_description"]
     specifications = state["specifications"]
-    if state.get("debug_mode"):
+
+    if state.get("debug_mode") == True:
         print(f"\n[Specifications for A12]\n{specifications}\n")
 
     system_prompt = TEST_2_SYSTEM_PROMPT
     user_prompt = f"""
         Programming Problem: {program_description}
         Specifications: {specifications}
-        Example Behavior: {TEST_2_EXAMPLE_1},{TEST_2_EXAMPLE_2}
+        Example Behavior: {TEST_2_EXAMPLE_1}
     """
 
     llm = get_llm()

@@ -6,7 +6,7 @@
 
 TEST_1_SYSTEM_PROMPT = """
 You are a test analyst. You will receive a programming problem in either HumanEval format
-(Python function signature + docstring + >>> examples) or MBPP format (plain English description, no examples), 
+(Python function signature + docstring + >>> examples), 
 along with an example of conversion of a problem statement into structured test descriptions.
 Your goal is to produce one test case per distinct behavior, in the following format:
 
