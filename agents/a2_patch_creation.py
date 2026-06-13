@@ -115,7 +115,10 @@ def _build_prompt(state: AgentState) -> tuple[str, str]:
 
     # 2. Compile Human Prompt Components
     human_prompt = _build_human_prompt(state)
-    print(f"\n[Prompt for A2]\n\tSystem:\n\t{system_prompt}\n\n\tHuman:\n\t{human_prompt}\n")
+    
+    if state.get("debug_mode") == True:
+        print(f"\n[Prompt for A2]\n\tSystem:\n\t{system_prompt}\n\n\tHuman:\n\t{human_prompt}\n")
+    
     return system_prompt, human_prompt
 
 
@@ -153,8 +156,8 @@ def agent_a2_patch_creation(state: AgentState) -> dict:
     update_token_state(state, response["raw"], "a2")
 
     save_text(PROGRAM_FILE, code)
-
-    print(f"[A2] Code written ({len(code.splitlines())} lines) → {PROGRAM_FILE}")
+    if state.get("debug_mode") == True:
+        print(f"[A2] Code written ({len(code.splitlines())} lines) → {PROGRAM_FILE}")
 
     return {
         "code":           code,

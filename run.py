@@ -158,6 +158,7 @@ def main():
     if args.sample_run == False:
         program_description, reference_code = choose_sample_run(args)
         initial_state["program_description"] = program_description
+        print(f"Debug mode: {args.debug}")
         run_problem(args, graph, initial_state, description_file, reference_code)
     else:
         clear_outputs_dir()
