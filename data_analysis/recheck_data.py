@@ -4,7 +4,10 @@ from pathlib import Path
 from experiments.run_humaneval import evaluate_solution
 from experiments.humaneval_loader import get_hidden_tests
 
-def recheck_data(scenario: str, subfolder: str, start_instance: int = 0, end_instance: int = 164) -> None:
+def recheck_data(scenario: str, subfolder: str, start_instance: int = 0, end_instance: int = 163) -> None:
+  """
+  Start and end instance are 0 indexed and inclusive. Scenario is a folder like "default". Subfolder is a folder like "default_55__109".
+  """
   repo_root = Path(__file__).resolve().parents[1]
   scenario_path = Path(scenario)
   if not scenario_path.is_absolute():
