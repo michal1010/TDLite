@@ -10,10 +10,10 @@ TEST_FILE    = Path("outputs/generated_tests.py")
 
 MODEL_NAME    = os.getenv("MODEL", "qwen2.5-coder:7b")
 NUM_CTX       = 8192
-TEMP_GENERATE = 0.2   # A1, A2 — slightly exploratory
-TEMP_DEBUG    = 0.2   # A4    — conservative, analytical
+TEMP_GENERATE = 0.2   # A1, A2 
+TEMP_DEBUG    = 0.2   # A4    
 
-MAX_ITERATIONS = 8
+MAX_ITERATIONS = 5
 MAX_COMPILE_ITERATIONS = 5
 MAX_TEST_ITERATIONS = 5
 
