@@ -26,8 +26,12 @@ def aggregate_csv(prefix: str, subfolders: list[str], root: str = ".") -> pd.Dat
         folder = os.path.join(root, prefix, sub) if prefix else os.path.join(root, sub)
         csv_path = os.path.join(folder, "results.csv")
 
+        passed_csv_path = os.path.join(folder, "pass_per_instance.csv")
+        passed_df = pd.read_csv(passed_csv_path)
+
         batch_df = pd.read_csv(csv_path)
         batch_df.insert(0, "batch", sub)
+        batch_df.insert(1, "passed_hidden_tests", passed_df["passed"])
 
         frames.append(batch_df)
 
