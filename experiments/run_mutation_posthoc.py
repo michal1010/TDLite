@@ -62,7 +62,7 @@ def _patch_csv(csv_path: Path, instance_id: int, mutation_results: dict) -> None
 
 
 def run_posthoc(results_folder: str, debug: bool = False) -> None:
-    results_root = Path(__file__).resolve().parent / "results"
+    results_root = Path(__file__).resolve().parent.parent / "data_analysis" / "tdd_refine"#/ "results"
     results_dir  = results_root / Path(results_folder).name
     exp_dir      = results_dir / "experiment_files"
     csv_path     = results_dir / "results.csv"

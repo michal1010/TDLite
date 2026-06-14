@@ -413,11 +413,16 @@ def compare_metric_spearman_rho(
     left_metric,
     right_metric,
     group_col = "scenario",
+    drop_negative = False,
 ) -> pd.DataFrame:
     left = df.loc[df[group_col] == group, left_metric]
     right = df.loc[df[group_col] == group, right_metric]
 
     stat, p_value = spearmanr(left, right)
+
+    if drop_negative:
+        left = left[left >= 0]
+        right = right[right >= 0]
 
     summary = pd.DataFrame(
         [

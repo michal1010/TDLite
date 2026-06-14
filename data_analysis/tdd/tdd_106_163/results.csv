@@ -1,59 +1,224 @@
 pipeline_tests_passed,pipeline_iterations,coverage_tests_run,coverage_tests_failed,coverage_tests_errors,coverage_tests_passed,coverage_test_file,coverage_patch_file,line_coverage_percent,line_coverage_covered,line_coverage_total,branch_coverage_percent,branch_coverage_covered,branch_coverage_total,coverage_warning,total_input_tokens,total_output_tokens,mutation_score,mutants_killed,mutants_survived,mutants_timeout,mutants_suspicious,mutants_total,mutation_warning,a11_input_tokens,a11_output_tokens,a12_input_tokens,a12_output_tokens,a2_input_tokens,a2_output_tokens,a3_input_tokens,a3_output_tokens,a4_input_tokens,a4_output_tokens,instance_id
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,100.0,11,11,0.0,0,0,,1878,299,-1.0,-1,-1,-1,-1,-1,,582,63,948,129,348,107,0,0,0,0,1
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,63.64,7,11,0.0,0,0,,4072,666,-1.0,-1,-1,-1,-1,-1,,1252,149,2007,296,813,221,0,0,0,0,2
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,6390,1433,-1.0,-1,-1,-1,-1,-1,,1836,367,3113,743,1441,323,0,0,0,0,3
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,9060,1999,-1.0,-1,-1,-1,-1,-1,,2591,524,4329,1086,2140,389,0,0,0,0,4
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,11767,2932,-1.0,-1,-1,-1,-1,-1,,3244,850,5611,1606,2912,476,0,0,0,0,5
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,58.33,7,12,0.0,0,0,,14201,3771,-1.0,-1,-1,-1,-1,-1,,3851,1090,6761,2081,3589,600,0,0,0,0,6
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,2,3,0.0,0,0,,16414,4257,-1.0,-1,-1,-1,-1,-1,,4469,1257,7849,2353,4096,647,0,0,0,0,7
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,18641,4725,-1.0,-1,-1,-1,-1,-1,,5107,1399,8932,2605,4602,721,0,0,0,0,8
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,10,12,0.0,0,0,,20950,5610,-1.0,-1,-1,-1,-1,-1,,5651,1629,10010,3166,5289,815,0,0,0,0,9
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,2,3,0.0,0,0,,23970,6431,-1.0,-1,-1,-1,-1,-1,,6433,1885,11352,3692,6185,854,0,0,0,0,10
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,26247,6945,-1.0,-1,-1,-1,-1,-1,,7059,2095,12491,3963,6697,887,0,0,0,0,11
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,70.0,7,10,0.0,0,0,,28652,7638,-1.0,-1,-1,-1,-1,-1,,7696,2320,13656,4335,7300,983,0,0,0,0,12
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,35163,8712,-1.0,-1,-1,-1,-1,-1,,8301,2481,19001,5164,7861,1067,0,0,0,0,13
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,37198,9010,-1.0,-1,-1,-1,-1,-1,,8925,2561,20008,5314,8265,1135,0,0,0,0,14
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,40185,10125,-1.0,-1,-1,-1,-1,-1,,9604,2882,21311,6070,9270,1173,0,0,0,0,15
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,42290,10682,-1.0,-1,-1,-1,-1,-1,,10163,3032,22324,6435,9803,1215,0,0,0,0,16
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,44964,11722,-1.0,-1,-1,-1,-1,-1,,10756,3368,23557,7101,10651,1253,0,0,0,0,17
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,72.73,8,11,0.0,0,0,,47446,12350,-1.0,-1,-1,-1,-1,-1,,11444,3506,24686,7464,11316,1380,0,0,0,0,18
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,47.06,8,17,0.0,0,0,,50213,13179,-1.0,-1,-1,-1,-1,-1,,12189,3701,25930,7918,12094,1560,0,0,0,0,19
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,52633,13705,-1.0,-1,-1,-1,-1,-1,,12786,3821,26951,8166,12562,1641,334,77,0,0,20
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,85.71,6,7,0.0,0,0,,55619,14803,-1.0,-1,-1,-1,-1,-1,,13491,4176,28315,8826,13479,1724,334,77,0,0,21
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,71.43,10,14,0.0,0,0,,58032,15314,-1.0,-1,-1,-1,-1,-1,,14201,4306,29458,9065,14039,1866,334,77,0,0,22
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,10,12,0.0,0,0,,60022,15726,-1.0,-1,-1,-1,-1,-1,,14779,4425,30459,9268,14450,1956,334,77,0,0,23
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,42.86,9,21,0.0,0,0,,62930,16392,-1.0,-1,-1,-1,-1,-1,,15631,4556,31745,9567,15220,2192,334,77,0,0,24
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,64.29,9,14,0.0,0,0,,65106,16713,-1.0,-1,-1,-1,-1,-1,,16322,4605,32788,9681,15662,2350,334,77,0,0,25
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,66915,17079,-1.0,-1,-1,-1,-1,-1,,16852,4700,33717,9882,16012,2420,334,77,0,0,26
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,69196,17783,-1.0,-1,-1,-1,-1,-1,,17441,4898,34808,10316,16613,2492,334,77,0,0,27
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,71492,18354,-1.0,-1,-1,-1,-1,-1,,18058,5117,35948,10630,17152,2530,334,77,0,0,28
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,73622,18868,-1.0,-1,-1,-1,-1,-1,,18651,5240,36968,10959,17669,2592,334,77,0,0,29
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,80.0,4,5,0.0,0,0,,75530,19226,-1.0,-1,-1,-1,-1,-1,,19210,5335,37926,11165,18060,2649,334,77,0,0,30
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,77814,19925,-1.0,-1,-1,-1,-1,-1,,19804,5526,39014,11582,18662,2740,334,77,0,0,31
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,80209,20711,-1.0,-1,-1,-1,-1,-1,,20401,5733,40122,12087,19352,2814,334,77,0,0,32
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,82245,21268,-1.0,-1,-1,-1,-1,-1,,20934,5921,41147,12425,19830,2845,334,77,0,0,33
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,85.71,6,7,0.0,0,0,,84319,21850,-1.0,-1,-1,-1,-1,-1,,21487,6056,42139,12806,20359,2911,334,77,0,0,34
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,86414,22393,-1.0,-1,-1,-1,-1,-1,,22049,6226,43174,13151,20857,2939,334,77,0,0,35
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,10,12,0.0,0,0,,91249,23644,-1.0,-1,-1,-1,-1,-1,,22719,6418,44339,13432,21406,3068,2785,726,0,0,36
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,93513,24165,-1.0,-1,-1,-1,-1,-1,,23346,6548,45400,13772,21982,3119,2785,726,0,0,37
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,81.82,9,11,0.0,0,0,,95636,24674,-1.0,-1,-1,-1,-1,-1,,23951,6704,46464,14018,22436,3226,2785,726,0,0,38
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,97841,25191,-1.0,-1,-1,-1,-1,-1,,24564,6845,47522,14327,22970,3293,2785,726,0,0,39
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,99837,25576,-1.0,-1,-1,-1,-1,-1,,25141,6941,48498,14574,23413,3335,2785,726,0,0,40
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,102009,26153,-1.0,-1,-1,-1,-1,-1,,25726,7191,49637,14816,23861,3420,2785,726,0,0,41
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,104076,26538,-1.0,-1,-1,-1,-1,-1,,26350,7262,50636,15016,24305,3534,2785,726,0,0,42
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,111313,28552,-1.0,-1,-1,-1,-1,-1,,27017,7484,56596,16677,24915,3665,2785,726,0,0,43
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,113658,29090,-1.0,-1,-1,-1,-1,-1,,27660,7730,57788,16924,25425,3710,2785,726,0,0,44
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,115548,29499,-1.0,-1,-1,-1,-1,-1,,28206,7825,58733,17151,25824,3797,2785,726,0,0,45
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,117683,29986,-1.0,-1,-1,-1,-1,-1,,28801,7970,59777,17448,26320,3842,2785,726,0,0,46
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,120267,30635,-1.0,-1,-1,-1,-1,-1,,29487,8173,60969,17860,27026,3876,2785,726,0,0,47
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,81.82,9,11,0.0,0,0,,122830,31212,-1.0,-1,-1,-1,-1,-1,,30220,8333,62165,18147,27660,4006,2785,726,0,0,48
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,125296,32118,-1.0,-1,-1,-1,-1,-1,,30805,8603,63324,18729,28382,4060,2785,726,0,0,49
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,127064,32468,-1.0,-1,-1,-1,-1,-1,,31329,8687,64235,18910,28715,4145,2785,726,0,0,50
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,12.5,1,8,0.0,0,0,,129307,33341,-1.0,-1,-1,-1,-1,-1,,31893,8882,65297,19384,29332,4349,2785,726,0,0,51
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,2,3,0.0,0,0,,131300,33762,-1.0,-1,-1,-1,-1,-1,,32458,8995,66279,19640,29778,4401,2785,726,0,0,52
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,72.73,8,11,0.0,0,0,,133321,34244,-1.0,-1,-1,-1,-1,-1,,33034,9117,67280,19898,30222,4503,2785,726,0,0,53
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,136074,34910,-1.0,-1,-1,-1,-1,-1,,33780,9317,68529,20307,30980,4560,2785,726,0,0,54
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,56.25,9,16,0.0,0,0,,139122,36273,-1.0,-1,-1,-1,-1,-1,,34443,9798,69977,21054,31917,4695,2785,726,0,0,55
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,141125,36731,-1.0,-1,-1,-1,-1,-1,,35010,9913,70962,21341,32368,4751,2785,726,0,0,56
-True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,80.0,4,5,0.0,0,0,,143906,37233,-1.0,-1,-1,-1,-1,-1,,35552,10009,72846,21707,32723,4791,2785,726,0,0,57
-False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,145896,37676,-1.0,-1,-1,-1,-1,-1,,36114,10150,73852,21948,33145,4852,2785,726,0,0,58
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,100.0,11,11,0.0,0,0,,1878,299,0.9474,36,2,0,0,38,,582,63,948,129,348,107,0,0,0,0,1
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,63.64,7,11,0.0,0,0,,4072,666,1.0,34,0,0,0,34,,1252,149,2007,296,813,221,0,0,0,0,2
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,6390,1433,0.6667,12,6,0,0,18,,1836,367,3113,743,1441,323,0,0,0,0,3
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,9060,1999,0.9444,17,1,0,0,18,,2591,524,4329,1086,2140,389,0,0,0,0,4
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,11767,2932,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+.F...                                                                    [100%]
+=================================== FAILURES ===================================
+_ TestExchange.test_both_lists_contain_a_mix_of_odd_and_even_numbers_but_not_enough_even_numbers_in_lst2 _
+test_generated_program.py:33: in test_both_lists_contain_a_mix_of_odd_and_even_numbers_but_not_enough_even_numbers_in_lst2
+    self.assertEqual(exchange([1, 3, 5], [2, 4, 6]), 'NO')
+E   AssertionError: 'YES' != 'NO'
+E   - YES
+E   + NO
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestExchange::test_both_lists_contain_a_mix_of_odd_and_even_numbers_but_not_enough_even_numbers_in_lst2
+1 failed, 4 passed in 2.26s
+",3244,850,5611,1606,2912,476,0,0,0,0,5
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,58.33,7,12,0.0,0,0,,14201,3771,0.8333,15,3,0,0,18,,3851,1090,6761,2081,3589,600,0,0,0,0,6
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,2,3,0.0,0,0,,16414,4257,1.0,7,0,0,0,7,,4469,1257,7849,2353,4096,647,0,0,0,0,7
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,18641,4725,1.0,31,0,0,0,31,,5107,1399,8932,2605,4602,721,0,0,0,0,8
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,10,12,0.0,0,0,,20950,5610,0.913,21,2,0,0,23,,5651,1629,10010,3166,5289,815,0,0,0,0,9
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,2,3,0.0,0,0,,23970,6431,1.0,4,0,0,0,4,,6433,1885,11352,3692,6185,854,0,0,0,0,10
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,26247,6945,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__________________ TestSortArray.test_handles_input_with_zero __________________
+test_generated_program.py:22: in test_handles_input_with_zero
+    self.assertEqual(sort_array([1, 0, 2, 3, 4]), [0, 1, 2, 3, 4])
+E   AssertionError: Lists differ: [0, 1, 2, 4, 3] != [0, 1, 2, 3, 4]
+E   
+E   First differing element 3:
+E   4
+E   3
+E   
+E   - [0, 1, 2, 4, 3]
+E   ?            ---
+E   
+E   + [0, 1, 2, 3, 4]
+E   ?           +++
+__________________ TestSortArray.test_sorts_negative_integers __________________
+test_generated_program.py:16: in test_sorts_negative_integers
+    self.assertEqual(sort_array([-2, -3, -4, -5, -6]), [-6, -5, -4, -3, -2])
+E   AssertionError: Lists differ: [-4, -2, -6, -5, -3] != [-6, -5, -4, -3, -2]
+E   
+E   First differing element 0:
+E   -4
+E   -6
+E   
+E   - [-4, -2, -6, -5, -3]
+E   + [-6, -5, -4, -3, -2]
+__________________ TestSortArray.test_sorts_positive_integers __________________
+test_generated_program.py:10: in test_sorts_positive_integers
+    self.assertEqual(sort_array([1, 5, 2, 3, 4]), [1, 2, 3, 4, 5])
+E   AssertionError: Lists differ: [1, 2, 4, 3, 5] != [1, 2, 3, 4, 5]
+E   
+E   First differing element 2:
+E   4
+E   3
+E   
+E   - [1, 2, 4, 3, 5]
+E   ?           ---
+E   
+E   + [1, 2, 3, 4, 5]
+E   ?        +++
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestSortArray::test_handles_input_with_zero
+FAILED test_generated_program.py::TestSortArray::test_sorts_negative_integers
+FAILED test_generated_program.py::TestSortArray::test_sorts_positive_integers
+3 failed in 2.03s
+",7059,2095,12491,3963,6697,887,0,0,0,0,11
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,70.0,7,10,0.0,0,0,,28652,7638,0.96,24,1,0,0,25,,7696,2320,13656,4335,7300,983,0,0,0,0,12
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,35163,8712,0.6136,27,17,0,0,44,,8301,2481,19001,5164,7861,1067,0,0,0,0,13
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,37198,9010,0.9118,31,3,0,0,34,,8925,2561,20008,5314,8265,1135,0,0,0,0,14
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,40185,10125,1.0,4,0,0,0,4,,9604,2882,21311,6070,9270,1173,0,0,0,0,15
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,42290,10682,1.0,11,0,0,0,11,,10163,3032,22324,6435,9803,1215,0,0,0,0,16
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,44964,11722,1.0,3,0,0,0,3,,10756,3368,23557,7101,10651,1253,0,0,0,0,17
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,72.73,8,11,0.0,0,0,,47446,12350,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+..F                                                                      [100%]
+=================================== FAILURES ===================================
+______ TestGetOddCollatz.test_returns_sorted_list_of_odd_numbers_for_n_7 _______
+test_generated_program.py:26: in test_returns_sorted_list_of_odd_numbers_for_n_7
+    self.assertEqual(get_odd_collatz(self.n3), self.expected_output3)
+E   AssertionError: Lists differ: [1, 5, 7, 11, 13, 17] != [1, 7, 11, 22]
+E   
+E   First differing element 1:
+E   5
+E   7
+E   
+E   First list contains 2 additional elements.
+E   First extra element 4:
+E   13
+E   
+E   - [1, 5, 7, 11, 13, 17]
+E   + [1, 7, 11, 22]
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestGetOddCollatz::test_returns_sorted_list_of_odd_numbers_for_n_7
+1 failed, 2 passed in 2.02s
+",11444,3506,24686,7464,11316,1380,0,0,0,0,18
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,47.06,8,17,0.0,0,0,,50213,13179,0.3462,18,34,0,0,52,,12189,3701,25930,7918,12094,1560,0,0,0,0,19
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,52633,13705,1.0,10,0,0,0,10,,12786,3821,26951,8166,12562,1641,334,77,0,0,20
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,85.71,6,7,0.0,0,0,,55619,14803,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+...F....                                                                 [100%]
+=================================== FAILURES ===================================
+_ TestIsSorted.test_ascending_order_list_with_duplicates_in_the_middle_returns_false _
+test_generated_program.py:38: in test_ascending_order_list_with_duplicates_in_the_middle_returns_false
+    self.assertFalse(is_sorted([1, 2, 3, 4, 5, 6, 7]))
+E   AssertionError: True is not false
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestIsSorted::test_ascending_order_list_with_duplicates_in_the_middle_returns_false
+1 failed, 7 passed in 1.98s
+",13491,4176,28315,8826,13479,1724,334,77,0,0,21
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,71.43,10,14,0.0,0,0,,58032,15314,0.6512,28,15,0,0,43,,14201,4306,29458,9065,14039,1866,334,77,0,0,22
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,10,12,0.0,0,0,,60022,15726,0.9091,10,1,0,0,11,,14779,4425,30459,9268,14450,1956,334,77,0,0,23
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,42.86,9,21,0.0,0,0,,62930,16392,0.5814,25,18,0,0,43,,15631,4556,31745,9567,15220,2192,334,77,0,0,24
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,64.29,9,14,0.0,0,0,,65106,16713,0.9394,31,2,0,0,33,,16322,4605,32788,9681,15662,2350,334,77,0,0,25
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,66915,17079,0.8421,16,3,0,0,19,,16852,4700,33717,9882,16012,2420,334,77,0,0,26
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,69196,17783,0.8696,20,3,0,0,23,,17441,4898,34808,10316,16613,2492,334,77,0,0,27
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,71492,18354,1.0,7,0,0,0,7,,18058,5117,35948,10630,17152,2530,334,77,0,0,28
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,73622,18868,0.75,12,4,0,0,16,,18651,5240,36968,10959,17669,2592,334,77,0,0,29
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,80.0,4,5,0.0,0,0,,75530,19226,0.7692,9,3,1,0,13,,19210,5335,37926,11165,18060,2649,334,77,0,0,30
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,77814,19925,1.0,20,0,0,0,20,,19804,5526,39014,11582,18662,2740,334,77,0,0,31
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,80209,20711,0.9524,20,1,0,0,21,,20401,5733,40122,12087,19352,2814,334,77,0,0,32
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,82245,21268,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+..F.                                                                     [100%]
+=================================== FAILURES ===================================
+_ TestIsEqualToSumEven.test_checks_number_greater_than_smallest_possible_sum_not_divisible_by_four_returns_false _
+test_generated_program.py:22: in test_checks_number_greater_than_smallest_possible_sum_not_divisible_by_four_returns_false
+    self.assertFalse(is_equal_to_sum_even(10))
+E   AssertionError: True is not false
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestIsEqualToSumEven::test_checks_number_greater_than_smallest_possible_sum_not_divisible_by_four_returns_false
+1 failed, 3 passed in 2.05s
+",20934,5921,41147,12425,19830,2845,334,77,0,0,33
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,85.71,6,7,0.0,0,0,,84319,21850,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+.F..                                                                     [100%]
+=================================== FAILURES ===================================
+_______ TestSpecialFactorial.test_calculates_brazilian_factorial_for_n_2 _______
+test_generated_program.py:21: in test_calculates_brazilian_factorial_for_n_2
+    self.assertEqual(special_factorial(2), 4)
+E   AssertionError: 2 != 4
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestSpecialFactorial::test_calculates_brazilian_factorial_for_n_2
+1 failed, 3 passed in 2.05s
+",21487,6056,42139,12806,20359,2911,334,77,0,0,34
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,86414,22393,0.8431,42,8,1,0,51,,22049,6226,43174,13151,20857,2939,334,77,0,0,35
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,10,12,0.0,0,0,,91249,23644,0.7073,29,12,0,0,41,,22719,6418,44339,13432,21406,3068,2785,726,0,0,36
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,93513,24165,0.9565,22,1,0,0,23,,23346,6548,45400,13772,21982,3119,2785,726,0,0,37
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,81.82,9,11,0.0,0,0,,95636,24674,0.8,20,5,0,0,25,,23951,6704,46464,14018,22436,3226,2785,726,0,0,38
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,97841,25191,1.0,20,0,0,0,20,,24564,6845,47522,14327,22970,3293,2785,726,0,0,39
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,99837,25576,0.8636,19,3,0,0,22,,25141,6941,48498,14574,23413,3335,2785,726,0,0,40
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,102009,26153,0.913,21,2,0,0,23,,25726,7191,49637,14816,23861,3420,2785,726,0,0,41
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,104076,26538,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+______________ TestGetMaxTriples.test_returns_0_for_n_equal_to_4 _______________
+test_generated_program.py:14: in test_returns_0_for_n_equal_to_4
+    self.assertEqual(result, self.expected_results[1])
+E   AssertionError: 1 != 0
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestGetMaxTriples::test_returns_0_for_n_equal_to_4
+1 failed, 1 passed in 2.09s
+",26350,7262,50636,15016,24305,3534,2785,726,0,0,42
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,87.5,7,8,0.0,0,0,,111313,28552,0.9512,39,2,0,0,41,,27017,7484,56596,16677,24915,3665,2785,726,0,0,43
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,113658,29090,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ TestSortedListSum.test_removes_odd_length_strings_and_sorts_by_length_then_alphabetically _
+test_generated_program.py:21: in test_removes_odd_length_strings_and_sorts_by_length_then_alphabetically
+    self.assertEqual(result, expected)
+E   AssertionError: Lists differ: ['ab', 'cd'] != ['ab', 'cd', 'hij']
+E   
+E   Second list contains 1 additional elements.
+E   First extra element 2:
+E   'hij'
+E   
+E   - ['ab', 'cd']
+E   + ['ab', 'cd', 'hij']
+E   ?            +++++++
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestSortedListSum::test_removes_odd_length_strings_and_sorts_by_length_then_alphabetically
+1 failed in 2.14s
+",27660,7730,57788,16924,25425,3710,2785,726,0,0,44
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,115548,29499,0.7273,8,3,0,0,11,,28206,7825,58733,17151,25824,3797,2785,726,0,0,45
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,117683,29986,0.7857,11,3,0,0,14,,28801,7970,59777,17448,26320,3842,2785,726,0,0,46
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,1,2,0.0,0,0,,120267,30635,1.0,6,0,0,0,6,,29487,8173,60969,17860,27026,3876,2785,726,0,0,47
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,81.82,9,11,0.0,0,0,,122830,31212,0.6923,9,4,0,0,13,,30220,8333,62165,18147,27660,4006,2785,726,0,0,48
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,83.33,5,6,0.0,0,0,,125296,32118,0.7333,11,4,0,0,15,,30805,8603,63324,18729,28382,4060,2785,726,0,0,49
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,77.78,7,9,0.0,0,0,,127064,32468,0.9412,16,1,0,0,17,,31329,8687,64235,18910,28715,4145,2785,726,0,0,50
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,12.5,1,8,0.0,0,0,,129307,33341,0.569,28,25,5,0,58,,31893,8882,65297,19384,29332,4349,2785,726,0,0,51
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,2,3,0.0,0,0,,131300,33762,0.4706,8,9,0,0,17,,32458,8995,66279,19640,29778,4401,2785,726,0,0,52
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,72.73,8,11,0.0,0,0,,133321,34244,1.0,7,0,0,0,7,,33034,9117,67280,19898,30222,4503,2785,726,0,0,53
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,136074,34910,0.8,4,1,0,0,5,,33780,9317,68529,20307,30980,4560,2785,726,0,0,54
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,56.25,9,16,0.0,0,0,,139122,36273,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+.FF.....FF.                                                              [100%]
+=================================== FAILURES ===================================
+_ TestDoAlgebra.test_evaluates_combination_of_multiplication_exponentiation_and_addition_operations _
+test_generated_program.py:52: in test_evaluates_combination_of_multiplication_exponentiation_and_addition_operations
+    self.assertEqual(result, 17)
+E   AssertionError: 23 != 17
+_ TestDoAlgebra.test_evaluates_combination_of_subtraction_and_floor_division_operations _
+test_generated_program.py:47: in test_evaluates_combination_of_subtraction_and_floor_division_operations
+    self.assertEqual(result, 4)
+E   AssertionError: 9 != 4
+________________ TestDoAlgebra.test_handles_empty_operand_list _________________
+test_generated_program.py:64: in test_handles_empty_operand_list
+    do_algebra(['+'], [])
+generated_program.py:27: in do_algebra
+    expression = str(operand[0])
+E   IndexError: list index out of range
+________________ TestDoAlgebra.test_handles_empty_operator_list ________________
+test_generated_program.py:58: in test_handles_empty_operator_list
+    with self.assertRaises(ValueError):
+E   AssertionError: ValueError not raised
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestDoAlgebra::test_evaluates_combination_of_multiplication_exponentiation_and_addition_operations
+FAILED test_generated_program.py::TestDoAlgebra::test_evaluates_combination_of_subtraction_and_floor_division_operations
+FAILED test_generated_program.py::TestDoAlgebra::test_handles_empty_operand_list
+FAILED test_generated_program.py::TestDoAlgebra::test_handles_empty_operator_list
+4 failed, 7 passed in 2.00s
+",34443,9798,69977,21054,31917,4695,2785,726,0,0,55
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,141125,36731,0.9,18,2,0,0,20,,35010,9913,70962,21341,32368,4751,2785,726,0,0,56
+True,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,80.0,4,5,0.0,0,0,,143906,37233,0.75,3,1,0,0,4,,35552,10009,72846,21707,32723,4791,2785,726,0,0,57
+False,1,1,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,75.0,3,4,0.0,0,0,,145896,37676,0.9333,28,2,0,0,30,,36114,10150,73852,21948,33145,4852,2785,726,0,0,58
