@@ -15,3 +15,5 @@ pytest
 matplotlib
 ipykernel
 scipy
+jupyter
+ipywidgets
