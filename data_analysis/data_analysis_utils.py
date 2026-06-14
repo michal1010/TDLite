@@ -5,7 +5,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from scipy.stats import chi2_contingency, fisher_exact, kruskal, mannwhitneyu
+from scipy.stats import chi2_contingency, fisher_exact, kruskal, mannwhitneyu, spearmanr
 
 def aggregate_csv(prefix: str, subfolders: list[str], root: str = ".") -> pd.DataFrame:
     """Load and concatenate results CSVs for all batches of a setup.
@@ -407,6 +407,33 @@ def compare_quality_metric(
         drop_negative=drop_negative,
     )
 
+def compare_metric_spearman_rho(
+    df: pd.DataFrame,
+    group,
+    left_metric,
+    right_metric,
+    group_col = "scenario",
+) -> pd.DataFrame:
+    left = df.loc[df[group_col] == group, left_metric]
+    right = df.loc[df[group_col] == group, right_metric]
+
+    stat, p_value = spearmanr(left, right)
+
+    summary = pd.DataFrame(
+        [
+            {
+                group: group,
+                "left_metric": left_metric,
+                "right_metric": right_metric,
+                "left_mean": left.mean(),
+                "right_mean": right.mean(),
+                "spearmanr_stat": stat,
+                "p_value": p_value,
+                "significant_0.05": p_value < 0.05,
+            }
+        ]
+    )
+    return summary
 
 def plot_token_cost_distribution(
     df: pd.DataFrame,
