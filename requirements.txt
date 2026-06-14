@@ -12,3 +12,8 @@ datasets
 coverage
 mutmut
 pytest
+matplotlib
+ipykernel
+scipy
+jupyter
+ipywidgets

@@ -1,4 +1,5 @@
 .venv/
+.wsl_venv/
 __pycache__/
 generated_program.py
 generated_tests.py
@@ -8,3 +9,6 @@ experiments/results/
 last_llm_raw_output.json
 outputs/
 .env
+
+# Filter code files from final results, but include csv and json files
+data_analysis/**/**/experiment_files/

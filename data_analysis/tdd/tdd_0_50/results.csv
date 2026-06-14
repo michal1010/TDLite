@@ -1,0 +1,253 @@
+pipeline_tests_passed,pipeline_iterations,coverage_tests_run,coverage_tests_failed,coverage_tests_errors,coverage_tests_passed,coverage_test_file,coverage_patch_file,line_coverage_percent,line_coverage_covered,line_coverage_total,branch_coverage_percent,branch_coverage_covered,branch_coverage_total,coverage_warning,total_input_tokens,total_output_tokens,mutation_score,mutants_killed,mutants_survived,mutants_timeout,mutants_suspicious,mutants_total,mutation_warning,a11_input_tokens,a11_output_tokens,a12_input_tokens,a12_output_tokens,a2_input_tokens,a2_output_tokens,a3_input_tokens,a3_output_tokens,a4_input_tokens,a4_output_tokens,instance_id
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,100.0,7,7,0.0,0,0,,2051,454,0.8889,8,1,0,0,9,,579,129,1012,253,460,72,0,0,0,0,1
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,26.67,4,15,0.0,0,0,,4213,1130,1.0,21,0,0,0,21,,1149,319,2075,621,989,190,0,0,0,0,2
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,5908,1287,1.0,2,0,0,0,2,,1690,357,2958,715,1260,215,0,0,0,0,3
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,62.5,5,8,0.0,0,0,,7819,1601,0.625,5,3,0,0,8,,2264,438,3917,893,1638,270,0,0,0,0,4
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,71.43,5,7,0.0,0,0,,9653,1848,1.0,7,0,0,0,7,,2836,493,4848,1016,1969,339,0,0,0,0,5
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,62.5,5,8,0.0,0,0,,11513,2214,1.0,9,0,0,0,9,,3383,582,5787,1220,2343,412,0,0,0,0,6
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,35.71,5,14,0.0,0,0,,13677,2885,0.8,16,4,0,0,20,,3950,750,6825,1610,2902,525,0,0,0,0,7
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,33.33,1,3,0.0,0,0,,15668,3365,1.0,1,0,0,0,1,,4498,899,7825,1898,3345,568,0,0,0,0,8
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,55.56,5,9,0.0,0,0,,18113,4289,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F.F..                                                                    [100%]
+=================================== FAILURES ===================================
+____ TestSumProduct.test_returns_correct_sum_and_product_for_mixed_numbers _____
+test_generated_program.py:40: in test_returns_correct_sum_and_product_for_mixed_numbers
+    self.assertEqual(sum_product(self.mixed_numbers), (0, 0))
+E   AssertionError: Tuples differ: (0, 4) != (0, 0)
+E   
+E   First differing element 1:
+E   4
+E   0
+E   
+E   - (0, 4)
+E   ?     ^
+E   
+E   + (0, 0)
+E   ?     ^
+___ TestSumProduct.test_returns_correct_sum_and_product_for_negative_numbers ___
+test_generated_program.py:34: in test_returns_correct_sum_and_product_for_negative_numbers
+    self.assertEqual(sum_product(self.negative_numbers), (-6, -24))
+E   AssertionError: Tuples differ: (-10, 24) != (-6, -24)
+E   
+E   First differing element 0:
+E   -10
+E   -6
+E   
+E   - (-10, 24)
+E   ?   ^^
+E   
+E   + (-6, -24)
+E   ?   ^  +
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestSumProduct::test_returns_correct_sum_and_product_for_mixed_numbers
+FAILED test_generated_program.py::TestSumProduct::test_returns_correct_sum_and_product_for_negative_numbers
+2 failed, 3 passed in 2.00s
+",5065,1243,9039,2403,4009,643,0,0,0,0,9
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,4,8,0.0,0,0,,19924,4569,1.0,10,0,0,0,10,,5620,1313,9967,2542,4337,714,0,0,0,0,10
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,40.0,4,10,0.0,0,0,,22120,5160,0.9333,13,1,1,0,15,,6218,1567,11122,2777,4780,816,0,0,0,0,11
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,4,6,0.0,0,0,,23889,5467,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ TestStringXOR.test_xor_operation_with_different_lengths ____________
+test_generated_program.py:13: in test_xor_operation_with_different_lengths
+    self.assertEqual(string_xor('01', '110'), '111')
+E   AssertionError: '10' != '111'
+E   - 10
+E   + 111
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestStringXOR::test_xor_operation_with_different_lengths
+1 failed in 1.92s
+",6755,1668,12063,2895,5071,904,0,0,0,0,12
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,62.5,5,8,0.0,0,0,,25899,5960,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F...                                                                     [100%]
+=================================== FAILURES ===================================
+__________ TestLongest.test_returns_first_of_multiple_longest_strings __________
+test_generated_program.py:28: in test_returns_first_of_multiple_longest_strings
+    self.assertEqual(longest(['abc', 'defg', 'hij']), 'abc')
+E   AssertionError: 'defg' != 'abc'
+E   - defg
+E   + abc
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestLongest::test_returns_first_of_multiple_longest_strings
+1 failed, 3 passed in 2.02s
+",7312,1817,13072,3173,5515,970,0,0,0,0,13
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,2,4,0.0,0,0,,27690,6288,1.0,2,0,0,0,2,,7840,1897,13984,3373,5866,1018,0,0,0,0,14
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,33.33,1,3,0.0,0,0,,29527,6713,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+..F                                                                      [100%]
+=================================== FAILURES ===================================
+____ TestAllPrefixes.test_returns_list_with_single_prefix_for_empty_string _____
+test_generated_program.py:15: in test_returns_list_with_single_prefix_for_empty_string
+    self.assertEqual(all_prefixes(self.empty_string), [''])
+E   AssertionError: Lists differ: [] != ['']
+E   
+E   Second list contains 1 additional elements.
+E   First extra element 0:
+E   ''
+E   
+E   - []
+E   + ['']
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestAllPrefixes::test_returns_list_with_single_prefix_for_empty_string
+1 failed, 2 passed in 1.95s
+",8354,2006,14910,3646,6263,1061,0,0,0,0,15
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,31312,7040,1.0,6,0,0,0,6,,8878,2092,15823,3851,6611,1097,0,0,0,0,16
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,33052,7300,0.0,0,0,0,0,0,mutmut produced zero mutants for the target file.,9404,2160,16721,4014,6927,1126,0,0,0,0,17
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,2,4,0.0,0,0,,35451,7974,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F...                                                                     [100%]
+=================================== FAILURES ===================================
+__ TestParseMusic.test_parses_string_with_multiple_types_of_notes_in_sequence __
+test_generated_program.py:26: in test_parses_string_with_multiple_types_of_notes_in_sequence
+    self.assertEqual(parse_music('o .| o| .| .| .| o o'), [4, 1, 2, 2, 1, 1, 1, 4, 4])
+E   AssertionError: Lists differ: [4, 1, 2, 1, 1, 1, 4, 4] != [4, 1, 2, 2, 1, 1, 1, 4, 4]
+E   
+E   First differing element 3:
+E   1
+E   2
+E   
+E   Second list contains 1 additional elements.
+E   First extra element 8:
+E   4
+E   
+E   - [4, 1, 2, 1, 1, 1, 4, 4]
+E   + [4, 1, 2, 2, 1, 1, 1, 4, 4]
+E   ?           +++
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestParseMusic::test_parses_string_with_multiple_types_of_notes_in_sequence
+1 failed, 3 passed in 1.96s
+",10031,2371,17862,4414,7558,1189,0,0,0,0,18
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,37392,8397,0.8182,9,2,0,0,11,,10575,2490,18829,4687,7988,1220,0,0,0,0,19
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,20.0,1,5,0.0,0,0,,39522,9095,0.55,22,18,0,0,40,,11135,2655,19857,5082,8530,1358,0,0,0,0,20
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,30.77,4,13,0.0,0,0,,41740,9680,0.8,16,4,0,0,20,,11756,2794,20920,5373,9064,1513,0,0,0,0,21
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,44.44,4,9,0.0,0,0,,44008,10399,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+_ TestRescaleToUnit.test_scales_numbers_with_identical_minimum_and_maximum_values _
+test_generated_program.py:23: in test_scales_numbers_with_identical_minimum_and_maximum_values
+    self.assertEqual(rescale_to_unit(input3), expected_output3)
+generated_program.py:12: in rescale_to_unit
+    return [(x - min_number) / (max_number - min_number) for x in numbers]
+generated_program.py:12: in <listcomp>
+    return [(x - min_number) / (max_number - min_number) for x in numbers]
+E   ZeroDivisionError: float division by zero
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestRescaleToUnit::test_scales_numbers_with_identical_minimum_and_maximum_values
+1 failed, 2 passed in 1.95s
+",12336,3023,22032,5752,9640,1624,0,0,0,0,22
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,33.33,1,3,0.0,0,0,,45832,10687,0.0,0,0,0,0,0,mutmut produced zero mutants for the target file.,12883,3120,22979,5906,9970,1661,0,0,0,0,23
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,47471,10923,0.0,0,0,0,0,0,mutmut produced zero mutants for the target file.,13382,3181,23843,6058,10246,1684,0,0,0,0,24
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,60.0,3,5,0.0,0,0,,49320,11383,1.0,5,0,0,0,5,,13891,3289,24764,6354,10665,1740,0,0,0,0,25
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,5,10,0.0,0,0,,51371,11833,0.8,13,4,3,0,20,,14474,3434,25795,6582,11102,1817,0,0,0,0,26
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,55.56,5,9,0.0,0,0,,53485,12499,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+...F                                                                     [100%]
+=================================== FAILURES ===================================
+_ TestRemoveDuplicates.test_removes_duplicates_while_maintaining_original_order _
+test_generated_program.py:35: in test_removes_duplicates_while_maintaining_original_order
+    self.assertEqual(remove_duplicates([5, 5, 6, 7, 8, 8]), [5, 6, 7, 8])
+E   AssertionError: Lists differ: [6, 7] != [5, 6, 7, 8]
+E   
+E   First differing element 0:
+E   6
+E   5
+E   
+E   Second list contains 2 additional elements.
+E   First extra element 2:
+E   7
+E   
+E   - [6, 7]
+E   + [5, 6, 7, 8]
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestRemoveDuplicates::test_removes_duplicates_while_maintaining_original_order
+1 failed, 3 passed in 1.94s
+",15013,3614,26817,7003,11655,1882,0,0,0,0,27
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,55079,12682,0.0,0,0,0,0,0,mutmut produced zero mutants for the target file.,15517,3652,27662,7108,11900,1922,0,0,0,0,28
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,33.33,1,3,0.0,0,0,,56852,13030,1.0,2,0,0,0,2,,16029,3752,28577,7331,12246,1947,0,0,0,0,29
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,33.33,1,3,0.0,0,0,,58667,13333,1.0,1,0,0,0,1,,16571,3844,29514,7502,12582,1987,0,0,0,0,30
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,1,0.0,0,0,,60838,13885,1.0,2,0,0,0,2,,17145,4094,30641,7777,13052,2014,0,0,0,0,31
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,45.45,5,11,0.0,0,0,,62975,14531,0.8667,13,2,0,0,15,,17707,4314,31727,8109,13541,2108,0,0,0,0,32
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,40.0,4,10,0.0,0,0,,65518,15144,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+.F..                                                                     [100%]
+=================================== FAILURES ===================================
+_________________ TestPoly.test_evaluates_quadratic_polynomial _________________
+test_generated_program.py:20: in test_evaluates_quadratic_polynomial
+    self.assertEqual(poly(xs, x), 0.0)
+E   AssertionError: -1.0 != 0.0
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestPoly::test_evaluates_quadratic_polynomial
+1 failed, 3 passed in 2.44s
+",18423,4494,32927,8413,14168,2237,0,0,0,0,33
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,67590,15514,1.0,6,0,0,0,6,,19029,4607,33949,8624,14612,2283,0,0,0,0,34
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,69334,15743,1.0,3,0,0,0,3,,19562,4687,34865,8752,14907,2304,0,0,0,0,35
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,2,4,0.0,0,0,,71433,16348,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F...                                                                     [100%]
+=================================== FAILURES ===================================
+____________ TestMaxElement.test_raises_value_error_for_empty_list _____________
+test_generated_program.py:31: in test_raises_value_error_for_empty_list
+    max_element(self.l4)
+generated_program.py:10: in max_element
+    m = l[0]
+E   IndexError: list index out of range
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestMaxElement::test_raises_value_error_for_empty_list
+1 failed, 3 passed in 1.95s
+",20105,4868,35893,9136,15435,2344,0,0,0,0,36
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,4,6,0.0,0,0,,73381,16824,0.9615,25,1,0,0,26,,20645,5015,36884,9391,15852,2418,0,0,0,0,37
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,71.43,5,7,0.0,0,0,,75393,17259,1.0,15,0,0,0,15,,21224,5121,37872,9650,16297,2488,0,0,0,0,38
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,50.0,2,4,0.0,0,0,,77986,18229,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+ ===================================
+_ TestEncodeDecodeCyclic.test_decodes_string_with_one_group_of_three_characters_and_one_remaining_character _
+test_generated_program.py:49: in test_decodes_string_with_one_group_of_three_characters_and_one_remaining_character
+    self.assertEqual(decode_cyclic('ba'), self.remaining_chars)
+E   AssertionError: 'ba' != 'ab'
+E   - ba
+E   + ab
+_ TestEncodeDecodeCyclic.test_decodes_string_with_two_groups_of_three_characters _
+test_generated_program.py:39: in test_decodes_string_with_two_groups_of_three_characters
+    self.assertEqual(decode_cyclic('bcadef'), self.multiple_groups)
+E   AssertionError: 'abcfde' != 'abcdef'
+E   - abcfde
+E   ?    -
+E   + abcdef
+E   ?      +
+_ TestEncodeDecodeCyclic.test_encodes_string_with_one_group_of_three_characters_and_one_remaining_character _
+test_generated_program.py:45: in test_encodes_string_with_one_group_of_three_characters_and_one_remaining_character
+    self.assertEqual(encode_cyclic(self.remaining_chars), 'ba')
+E   AssertionError: 'ab' != 'ba'
+E   - ab
+E   + ba
+_ TestEncodeDecodeCyclic.test_encodes_string_with_two_groups_of_three_characters _
+test_generated_program.py:35: in test_encodes_string_with_two_groups_of_three_characters
+    self.assertEqual(encode_cyclic(self.multiple_groups), 'bcadef')
+E   AssertionError: 'bcaefd' != 'bcadef'
+E   - bcaefd
+E   ?      -
+E   + bcadef
+E   ?    +
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestEncodeDecodeCyclic::test_decodes_string_with_one_group_of_three_characters_and_one_remaining_character
+FAILED test_generated_program.py::TestEncodeDecodeCyclic::test_decodes_string_with_two_groups_of_three_characters
+FAILED test_generated_program.py::TestEncodeDecodeCyclic::test_encodes_string_with_one_group_of_three_characters_and_one_remaining_character
+FAILED test_generated_program.py::TestEncodeDecodeCyclic::test_encodes_string_with_two_groups_of_three_characters
+4 failed, 4 passed in 2.02s
+",21838,5449,39117,10201,17031,2579,0,0,0,0,39
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,29.41,5,17,0.0,0,0,,79998,18822,0.9048,33,4,5,0,42,,22393,5621,40148,10465,17457,2736,0,0,0,0,40
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,62.5,5,8,0.0,0,0,,82454,19644,0.6316,12,7,0,0,19,,23008,5832,41278,10985,18168,2827,0,0,0,0,41
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,84533,20004,1.0,2,0,0,0,2,,23615,5956,42313,11195,18605,2853,0,0,0,0,42
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,1,0.0,0,0,,86621,20491,1.0,2,0,0,0,2,,24184,6111,43340,11502,19097,2878,0,0,0,0,43
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,71.43,5,7,0.0,0,0,,88983,21172,0.9167,11,1,0,0,12,,24797,6309,44455,11934,19731,2929,0,0,0,0,44
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,62.5,5,8,0.0,0,0,,90932,21629,1.0,8,0,2,0,10,,25350,6423,45425,12202,20157,3004,0,0,0,0,45
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,92535,21811,1.0,3,0,0,0,3,,25852,6468,46276,12312,20407,3031,0,0,0,0,46
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,44.44,4,9,0.0,0,0,,94700,22298,0.9,27,3,0,0,30,,26480,6574,47314,12572,20906,3152,0,0,0,0,47
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,66.67,4,6,0.0,0,0,,96549,22681,-1.0,-1,-1,-1,-1,-1,"baseline tests failed before mutation; mutation score is invalid.
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_______________ TestMedian.test_finds_median_of_even_length_list _______________
+test_generated_program.py:17: in test_finds_median_of_even_length_list
+    self.assertEqual(median(self.l2), 15.0)
+E   AssertionError: 8.0 != 15.0
+=========================== short test summary info ============================
+FAILED test_generated_program.py::TestMedian::test_finds_median_of_even_length_list
+1 failed, 1 passed in 1.95s
+",27017,6674,48255,12780,21277,3227,0,0,0,0,48
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,98518,23189,1.0,7,0,0,0,7,,27544,6840,49252,13097,21722,3252,0,0,0,0,49
+True,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,100566,23617,1.0,7,0,0,0,7,,28116,7049,50337,13286,22113,3282,0,0,0,0,50
+False,1,2,0,0,True,outputs/generated_tests.py,outputs/generated_program.py,0.0,0,2,0.0,0,0,,102561,24109,1.0,32,0,0,0,32,,28663,7206,51344,13571,22554,3332,0,0,0,0,51

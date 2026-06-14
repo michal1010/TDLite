@@ -1,0 +1,36 @@
+{
+  "timestamp": "20260614_124811",
+  "total": 55,
+  "passed": 42,
+  "pass_rate": 0.7636363636363637,
+  "avg_iters": 1.8,
+  "tokens": {
+    "input": 4691500,
+    "output": 1210495,
+    "by_agent": {
+      "a11": {
+        "input": 0,
+        "output": 0
+      },
+      "a12": {
+        "input": 0,
+        "output": 0
+      },
+      "a2": {
+        "input": 1908555,
+        "output": 453530
+      },
+      "a3": {
+        "input": 143770,
+        "output": 19030
+      },
+      "a4": {
+        "input": 2639175,
+        "output": 737935
+      }
+    }
+  },
+  "avg_line_coverage": 0.0,
+  "avg_branch_coverage": 0.0,
+  "avg_mutation_score": -1.0
+}
