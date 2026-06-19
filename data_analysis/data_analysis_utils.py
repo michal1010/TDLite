@@ -22,8 +22,12 @@ def aggregate_csv(prefix: str, subfolders: list[str], root: str = ".") -> pd.Dat
         Combined DataFrame with a 'batch' column.
     """
     frames = []
+    sum_input_tokens = 0
+    sum_output_tokens = 0
+
     for sub in subfolders:
         folder = os.path.join(root, prefix, sub) if prefix else os.path.join(root, sub)
+        print("Visited folder: ", folder)
         csv_path = os.path.join(folder, "results.csv")
 
         passed_csv_path = os.path.join(folder, "pass_per_instance.csv")
@@ -33,10 +37,16 @@ def aggregate_csv(prefix: str, subfolders: list[str], root: str = ".") -> pd.Dat
         batch_df.insert(0, "batch", sub)
         batch_df.insert(1, "passed_hidden_tests", passed_df["passed"])
 
+        sum_input_tokens += np.asarray(batch_df["total_input_tokens"])[-1]
+        sum_output_tokens += np.asarray(batch_df["total_output_tokens"])[-1]
+
         frames.append(batch_df)
 
+    print(f"{prefix} input token total: {sum_input_tokens}")
+    print(f"{prefix} output token total: {sum_output_tokens}")
+
     df = pd.concat(frames, ignore_index=True)
-    return df
+    return df, sum_input_tokens, sum_output_tokens
 
 
 def aggregate_csv_scenarios(
@@ -48,13 +58,26 @@ def aggregate_csv_scenarios(
     Adds a "scenario" column so downstream comparisons can group rows by setup.
     """
     frames = []
+
+    token_costs = {
+        scenario: (0, 0)
+        for scenario in agent_scenarios.keys()
+    }
+
     for scenario, (prefix, subfolders) in agent_scenarios.items():
         if not subfolders:
             continue
 
-        scenario_df = aggregate_csv(prefix=prefix, subfolders=subfolders, root=root)
+        scenario_df, total_input, total_output = aggregate_csv(prefix=prefix, subfolders=subfolders, root=root)
         scenario_df.insert(0, "scenario", scenario)
         frames.append(scenario_df)
+        token_costs[scenario] = (total_input, total_output)
+
+    for scenario, (input_tokens, output_tokens) in token_costs.items():
+        for scenario_other, (input_tokens_other, output_tokens_other) in token_costs.items():
+            if scenario == scenario_other:
+                continue
+            print(f"{scenario} -> {scenario_other}: input={(input_tokens_other / input_tokens * 100 - 100):.2f}%, output={(output_tokens_other / output_tokens * 100 - 100):.2f}%")
 
     if not frames:
         return pd.DataFrame()
@@ -418,11 +441,12 @@ def compare_metric_spearman_rho(
     left = df.loc[df[group_col] == group, left_metric]
     right = df.loc[df[group_col] == group, right_metric]
 
-    stat, p_value = spearmanr(left, right)
-
     if drop_negative:
+        right = right[left >= 0] # Ensure right is same dimension as left
         left = left[left >= 0]
-        right = right[right >= 0]
+        right = right[right >= 0] # Filters nothing
+
+    stat, p_value = spearmanr(left, right)
 
     summary = pd.DataFrame(
         [
