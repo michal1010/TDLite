@@ -33,9 +33,14 @@ def aggregate_csv(prefix: str, subfolders: list[str], root: str = ".") -> pd.Dat
         passed_csv_path = os.path.join(folder, "pass_per_instance.csv")
         passed_df = pd.read_csv(passed_csv_path)
 
+        coverage_csv_path = os.path.join(folder, "test_results_posthoc.csv")
+        coverage_df = pd.read_csv(coverage_csv_path)
+
         batch_df = pd.read_csv(csv_path)
         batch_df.insert(0, "batch", sub)
         batch_df.insert(1, "passed_hidden_tests", passed_df["passed"])
+        batch_df.insert(2, "new_line_coverage", coverage_df["line_coverage"])
+        batch_df.insert(3, "new_branch_coverage", coverage_df["branch_coverage"])
 
         sum_input_tokens += np.asarray(batch_df["total_input_tokens"])[-1]
         sum_output_tokens += np.asarray(batch_df["total_output_tokens"])[-1]
